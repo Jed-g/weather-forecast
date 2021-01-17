@@ -1,22 +1,28 @@
-import React, { useEffect, useRef, useState } from "react";
+import React, { useEffect, useRef } from "react";
 import { Grid, TextField, InputAdornment, IconButton } from "@material-ui/core";
 import ClearIcon from "@material-ui/icons/Clear";
 
-function GeoCoordSearchField() {
+function GeoCoordSearchField({
+  geoCoordsInFields,
+  setGeoCoordsInFields,
+  errorStateGeoCoordField,
+  setErrorStateGeoCoordField,
+}) {
   const latitudeBox = useRef();
   useEffect(() => latitudeBox.current.focus(), []);
 
-  const [latitude, setLatitude] = useState("");
-  const [longitude, setLongitude] = useState("");
+  useEffect(() => setErrorStateGeoCoordField(false), []);
 
   const endAdornmentLatitude = () => {
-    if (latitude) {
+    if (geoCoordsInFields.latitude) {
       return (
         <InputAdornment position="end">
           <IconButton
-            onClick={() => {
-              setLatitude("");
-            }}
+            onClick={() =>
+              setGeoCoordsInFields((prevState) => {
+                return { ...prevState, latitude: "" };
+              })
+            }
             onMouseDown={(e) => e.preventDefault()}
             color="secondary"
           >
@@ -25,18 +31,20 @@ function GeoCoordSearchField() {
         </InputAdornment>
       );
     } else {
-      return;
+      return null;
     }
   };
 
   const endAdornmentLongitude = () => {
-    if (longitude) {
+    if (geoCoordsInFields.longitude) {
       return (
         <InputAdornment position="end">
           <IconButton
-            onClick={() => {
-              setLongitude("");
-            }}
+            onClick={() =>
+              setGeoCoordsInFields((prevState) => {
+                return { ...prevState, longitude: "" };
+              })
+            }
             onMouseDown={(e) => e.preventDefault()}
             color="secondary"
           >
@@ -45,7 +53,7 @@ function GeoCoordSearchField() {
         </InputAdornment>
       );
     } else {
-      return;
+      return null;
     }
   };
 
@@ -53,23 +61,37 @@ function GeoCoordSearchField() {
     <Grid container spacing={1}>
       <Grid item xs={12} lg={6}>
         <TextField
+          error={errorStateGeoCoordField}
+          onClick={() => setErrorStateGeoCoordField(false)}
           InputProps={{ endAdornment: endAdornmentLatitude() }}
-          value={latitude}
-          onChange={(e) => setLatitude(e.target.value)}
+          value={geoCoordsInFields.latitude}
+          onChange={(e) => {
+            setErrorStateGeoCoordField(false);
+            setGeoCoordsInFields((prevState) => {
+              return { ...prevState, latitude: e.target.value };
+            });
+          }}
           inputRef={latitudeBox}
           fullWidth
           variant="outlined"
-          label="Latitude"
+          label="Latitude (N/S)"
         />
       </Grid>
       <Grid item xs={12} lg={6}>
         <TextField
+          error={errorStateGeoCoordField}
+          onClick={() => setErrorStateGeoCoordField(false)}
           InputProps={{ endAdornment: endAdornmentLongitude() }}
-          value={longitude}
-          onChange={(e) => setLongitude(e.target.value)}
+          value={geoCoordsInFields.longitude}
+          onChange={(e) => {
+            setErrorStateGeoCoordField(false);
+            setGeoCoordsInFields((prevState) => {
+              return { ...prevState, longitude: e.target.value };
+            });
+          }}
           fullWidth
           variant="outlined"
-          label="Longitude"
+          label="Longitude (E/W)"
         />
       </Grid>
     </Grid>

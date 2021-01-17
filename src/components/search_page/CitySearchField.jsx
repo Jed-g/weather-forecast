@@ -1,5 +1,5 @@
 import React, { useRef, useEffect, useState } from "react";
-import { Link } from "react-router-dom";
+import { Redirect } from "react-router-dom";
 import {
   TextField,
   InputAdornment,
@@ -27,7 +27,7 @@ function calculateClosestMatches(
   setListOfSuggestions,
   breakBetweenIterationsInMs,
   cancelExec,
-  executing
+  executingAutocompleteLookup
 ) {
   cityList
     .slice(
@@ -101,13 +101,13 @@ function calculateClosestMatches(
             setListOfSuggestions,
             breakBetweenIterationsInMs,
             cancelExec,
-            executing
+            executingAutocompleteLookup
           ),
         breakBetweenIterationsInMs
       );
     } else {
-      setListOfSuggestions.current(bestFitArray);
-      executing.current = false;
+      setListOfSuggestions(bestFitArray);
+      executingAutocompleteLookup.current = false;
     }
   }
 }
@@ -124,62 +124,98 @@ function CitySearchField({
   setListOfSuggestions,
   errorStateCityNameField,
   setErrorStateCityNameField,
+  cityNameInField,
+  setCityNameInField,
+  executingAutocompleteLookup,
+  suggestionCurrentlySelected,
+  setSuggestionCurrentlySelected,
 }) {
   const classes = useStyles();
 
   const textFieldInner = useRef();
   useEffect(() => textFieldInner.current.focus(), []);
 
-  const [cityNameInField, setCityNameInField] = useState("");
+  useEffect(() => setErrorStateCityNameField(false), []);
 
-  const setListOfSuggestionsPersist = useRef(setListOfSuggestions);
-  setListOfSuggestionsPersist.current = setListOfSuggestions;
+  useEffect(() => setSuggestionCurrentlySelected(0), []);
 
-  const executing = useRef(false);
   const cancelExec = useRef(false);
 
   useEffect(() => {
     const breakBetweenIterationsInMs = 5;
-    cancelExec.current = executing.current;
-    if (CITY_LIST && cityNameInField.replace(/[{}()?*+.[\]]/g, "")) {
+    cancelExec.current = executingAutocompleteLookup.current;
+    if (CITY_LIST && cityNameInField.replace(/[#^$|/\\{}()?*+.[\]]/g, "")) {
       setTimeout(() => {
-        executing.current = true;
+        executingAutocompleteLookup.current = true;
         cancelExec.current = false;
         calculateClosestMatches(
           [],
           CITY_LIST,
-          cityNameInField.replace(/[{}()?*+.[\]]/g, ""),
+          cityNameInField.replace(/[#^$|/\\{}()?*+.[\]]/g, ""),
           5,
           15,
           0,
-          setListOfSuggestionsPersist,
+          setListOfSuggestions,
           breakBetweenIterationsInMs,
           cancelExec,
-          executing
+          executingAutocompleteLookup
         );
       }, 2 * breakBetweenIterationsInMs);
     } else {
-      setListOfSuggestionsPersist.current([]);
+      setListOfSuggestions([]);
     }
   }, [cityNameInField, CITY_LIST]);
 
   const textField = useRef();
   const [textFieldWidth, setTextFieldWidth] = useState(0);
-  const setTextFieldWidthPersist = useRef(setTextFieldWidth);
-  setTextFieldWidthPersist.current = setTextFieldWidth;
 
   useEffect(() => {
-    setTextFieldWidthPersist.current(
-      window.getComputedStyle(textField.current).width
-    );
-    const resizeEventFunction = (e) => {
-      setTextFieldWidthPersist.current(
-        window.getComputedStyle(textField.current).width
-      );
+    setTextFieldWidth(window.getComputedStyle(textField.current).width);
+    const resizeEventFunction = () => {
+      setTextFieldWidth(window.getComputedStyle(textField.current).width);
     };
     window.addEventListener("resize", resizeEventFunction);
 
     return () => window.removeEventListener("resize", resizeEventFunction);
+  }, []);
+
+  const listOfSuggestionsPersist = useRef();
+  listOfSuggestionsPersist.current = listOfSuggestions;
+
+  useEffect(() => {
+    const eventListenerFunction = function (e) {
+      document.removeEventListener("keydown", eventListenerFunction);
+
+      switch (e.key) {
+        case "ArrowUp":
+          setSuggestionCurrentlySelected((prev) =>
+            prev - 1 >= 0 ? prev - 1 : prev
+          );
+          break;
+        case "ArrowDown":
+          setSuggestionCurrentlySelected((prev) =>
+            prev + 1 < listOfSuggestionsPersist.current.length ? prev + 1 : prev
+          );
+          break;
+        default:
+          break;
+      }
+    };
+    document.addEventListener("keydown", eventListenerFunction);
+
+    const addKeydownEventListenerOnKeyupFunction = function () {
+      document.addEventListener("keydown", eventListenerFunction);
+    };
+
+    document.addEventListener("keyup", addKeydownEventListenerOnKeyupFunction);
+
+    return () => {
+      document.removeEventListener("keydown", eventListenerFunction);
+      document.removeEventListener(
+        "keyup",
+        addKeydownEventListenerOnKeyupFunction
+      );
+    };
   }, []);
 
   const endAdornment = () => {
@@ -198,118 +234,92 @@ function CitySearchField({
         </InputAdornment>
       );
     } else {
-      return;
+      return null;
     }
   };
 
+  const [redirect, setRedirect] = useState(null);
   const [anchorEl, setAnchorEl] = useState(null);
   const open = Boolean(anchorEl);
 
   return (
     <>
-      <TextField
-        error={errorStateCityNameField}
-        ref={textField}
-        InputProps={{ endAdornment: endAdornment() }}
-        value={cityNameInField}
-        onChange={(e) => {
-          setCityNameInField(e.target.value);
-          setErrorStateCityNameField(false);
-          setAnchorEl(textField.current);
-        }}
-        variant="outlined"
-        inputRef={textFieldInner}
-        fullWidth
-        label="City Name"
-        onClick={(e) => {
-          setAnchorEl(e.currentTarget);
-          setErrorStateCityNameField(false);
-        }}
-      />
-      <Popper
-        style={{ zIndex: 2, width: textFieldWidth }}
-        open={open}
-        anchorEl={anchorEl}
-        role={undefined}
-        transition
-        disablePortal
-      >
-        {({ TransitionProps, placement }) => (
-          <Grow
-            {...TransitionProps}
-            style={{
-              transformOrigin:
-                placement === "bottom" ? "center top" : "center bottom",
+      {redirect}
+      <ClickAwayListener onClickAway={() => setAnchorEl(null)}>
+        <div>
+          <TextField
+            error={errorStateCityNameField}
+            ref={textField}
+            InputProps={{ endAdornment: endAdornment() }}
+            value={cityNameInField}
+            onChange={(e) => {
+              setSuggestionCurrentlySelected(0);
+              setCityNameInField(e.target.value);
+              setErrorStateCityNameField(false);
+              setAnchorEl(textField.current);
             }}
-          >
-            <Paper>
-              <ClickAwayListener onClickAway={() => setAnchorEl(null)}>
-                <MenuList>
-                  {placement === "bottom"
-                    ? listOfSuggestions.map((cityObject, index) => {
+            variant="outlined"
+            inputRef={textFieldInner}
+            fullWidth
+            label="City Name"
+            onClick={(e) => {
+              setAnchorEl(e.currentTarget);
+              setErrorStateCityNameField(false);
+            }}
+          />
+          {listOfSuggestions.length !== 0 && (
+            <Popper
+              style={{ zIndex: 1500, width: textFieldWidth }}
+              open={open}
+              anchorEl={anchorEl}
+              role={undefined}
+              transition
+              disablePortal
+            >
+              {({ TransitionProps, placement }) => (
+                <Grow
+                  {...TransitionProps}
+                  style={{
+                    transformOrigin:
+                      placement === "bottom" ? "center top" : "center bottom",
+                  }}
+                >
+                  <Paper>
+                    <MenuList>
+                      {listOfSuggestions.map((cityObject, index) => {
                         return (
-                          <Link
-                            to={`/${cityObject.city.id}`}
-                            style={{ textDecoration: "none", color: "inherit" }}
+                          <MenuItem
+                            onClick={() =>
+                              executingAutocompleteLookup.current ||
+                              setRedirect(
+                                <Redirect push to={`/${cityObject.city.id}`} />
+                              )
+                            }
+                            selected={index === suggestionCurrentlySelected}
+                            className={
+                              listOfSuggestions.length - 1 === index
+                                ? null
+                                : classes.menuItemBorderBottom
+                            }
+                            value={cityObject.city.id}
+                            key={cityObject.city.id}
                           >
-                            <MenuItem
-                              selected={index === 0}
-                              className={
-                                listOfSuggestions.length - 1 === index
-                                  ? null
-                                  : classes.menuItemBorderBottom
-                              }
-                              value={cityObject.city.id}
-                              key={cityObject.city.id}
-                            >
-                              {cityObject.city.name}
-                              {cityObject.city.state &&
-                                `, ${cityObject.city.state}`}
-                              {cityObject.city.country &&
-                                `, ${cityObject.city.country}`}
-                            </MenuItem>
-                          </Link>
+                            {cityObject.city.name}
+                            {cityObject.city.state &&
+                              `, ${cityObject.city.state}`}
+                            {cityObject.city.country &&
+                              `, ${cityObject.city.country}`}
+                          </MenuItem>
                         );
-                      })
-                    : listOfSuggestions
-                        .slice()
-                        .reverse()
-                        .map((cityObject, index) => {
-                          return (
-                            <Link
-                              to={`/${cityObject.city.id}`}
-                              style={{
-                                textDecoration: "none",
-                                color: "inherit",
-                              }}
-                            >
-                              <MenuItem
-                                selected={
-                                  index === listOfSuggestions.length - 1
-                                }
-                                className={
-                                  listOfSuggestions.length - 1 === index
-                                    ? null
-                                    : classes.menuItemBorderBottom
-                                }
-                                value={cityObject.city.id}
-                                key={cityObject.city.id}
-                              >
-                                {cityObject.city.name}
-                                {cityObject.city.state &&
-                                  `, ${cityObject.city.state}`}
-                                {cityObject.city.country &&
-                                  `, ${cityObject.city.country}`}
-                              </MenuItem>
-                            </Link>
-                          );
-                        })}
-                </MenuList>
-              </ClickAwayListener>
-            </Paper>
-          </Grow>
-        )}
-      </Popper>
+                      })}
+                    </MenuList>
+                  </Paper>
+                </Grow>
+              )}
+            </Popper>
+          )}
+        </div>
+      </ClickAwayListener>
     </>
   );
 }

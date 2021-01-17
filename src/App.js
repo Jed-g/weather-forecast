@@ -4,9 +4,10 @@ import "fontsource-roboto";
 import {
   HashRouter as Router,
   Switch as RouterSwitch,
-  Route
+  Route,
 } from "react-router-dom";
 import SearchPage from "./components/search_page/SearchPage";
+import MainPage from "./components/main_page/MainPage";
 import Header from "./components/Header";
 import { ThemeProvider, createMuiTheme, CssBaseline } from "@material-ui/core";
 import { API_KEY } from "./api/ENV.json";
@@ -16,12 +17,12 @@ function selectTheme(theme) {
   const darkTheme = createMuiTheme({
     palette: {
       primary: {
-        main: '#00acc1',
+        main: "#00acc1",
       },
       secondary: {
-        main: '#e53935',
+        main: "#e53935",
       },
-      type: "dark"
+      type: "dark",
     },
   });
 
@@ -62,18 +63,42 @@ function App() {
       <ThemeProvider theme={theme}>
         <CssBaseline />
         <Router>
-          <div style={{height: "100vh", display: "flex", flexDirection: "column", justifyContent: "space-between"}}>
+          <div
+            style={{
+              height: "100vh",
+              display: "flex",
+              flexDirection: "column",
+              justifyContent: "space-between",
+            }}
+          >
             <Header />
-              <div style={{display: "flex", justifyContent: "center", alignItems: "center", flexGrow: "1"}}>
+            <div
+              style={{
+                display: "flex",
+                justifyContent: "center",
+                alignItems: "center",
+                flexGrow: "1",
+              }}
+            >
               <RouterSwitch>
                 <Route
                   exact
                   path="/"
-                  render={() => <SearchPage CITY_LIST={CITY_LIST} />}
+                  render={(props) => (
+                    <SearchPage
+                      {...props}
+                      API_KEY={API_KEY}
+                      CITY_LIST={CITY_LIST}
+                    />
+                  )}
+                />
+                <Route
+                  path="/:id"
+                  render={(props) => <MainPage {...props} API_KEY={API_KEY} />}
                 />
               </RouterSwitch>
-              </div>
-              </div>
+            </div>
+          </div>
         </Router>
       </ThemeProvider>
     </div>

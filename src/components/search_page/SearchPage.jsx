@@ -1,5 +1,4 @@
-import React, { useReducer, useState, useRef, useEffect } from "react";
-import { Link } from "react-router-dom";
+import React, { useState, useRef } from "react";
 import {
   Card,
   CardContent,
@@ -9,26 +8,17 @@ import {
   Box,
   Typography,
   Hidden,
-  Button,
 } from "@material-ui/core";
 import SearchIcon from "@material-ui/icons/Search";
 import CitySearchField from "./CitySearchField";
 import GeoCoordSearchField from "./GeoCoordSearchField";
 import DropdownMenu from "./DropdownMenu";
 import ButtonMenu from "./ButtonMenu";
-import ExploreIcon from "@material-ui/icons/Explore";
 import SearchImage from "./search_image.jpg";
+import SearchButton from "./SearchButton";
 
-function changeIsSearchTypeCitySelected(state, wasSearchTypeCitySelected) {
-  if (state !== wasSearchTypeCitySelected) {
-    return wasSearchTypeCitySelected;
-  }
-  return state;
-}
-
-function SearchPage({ CITY_LIST }) {
-  const [isSearchTypeCitySelected, updateIsSearchTypeCitySelected] = useReducer(
-    changeIsSearchTypeCitySelected,
+function SearchPage({ API_KEY, CITY_LIST }) {
+  const [isSearchTypeCitySelected, updateIsSearchTypeCitySelected] = useState(
     true
   );
 
@@ -41,32 +31,21 @@ function SearchPage({ CITY_LIST }) {
     </Box>
   );
 
+  const [cityNameInField, setCityNameInField] = useState("");
   const [listOfSuggestions, setListOfSuggestions] = useState([]);
-  const listOfSuggestionsPersist = useRef(listOfSuggestions);
-  listOfSuggestionsPersist.current = listOfSuggestions;
+  const [
+    suggestionCurrentlySelected,
+    setSuggestionCurrentlySelected,
+  ] = useState(0);
+  const executingAutocompleteLookup = useRef(false);
 
-  const linkButtonRef = useRef();
-  const errorButtonRef = useRef();
+  const [geoCoordsInFields, setGeoCoordsInFields] = useState({
+    latitude: "",
+    longitude: "",
+  });
 
   const [errorStateCityNameField, setErrorStateCityNameField] = useState(false);
-
-  useEffect(() => {
-    const eventListenerFunction = function (e) {
-      document.removeEventListener("keydown", eventListenerFunction);
-      if (e.key === "Enter") {
-        if (listOfSuggestionsPersist.current.length === 0) {
-          errorButtonRef.current && errorButtonRef.current.click();
-        } else {
-          linkButtonRef.current && linkButtonRef.current.click();
-        }
-      }
-    };
-    document.addEventListener("keydown", eventListenerFunction);
-
-    document.addEventListener("keyup", () => {
-      document.addEventListener("keydown", eventListenerFunction);
-    });
-  }, []);
+  const [errorStateGeoCoordField, setErrorStateGeoCoordField] = useState(false);
 
   return (
     <Grid container>
@@ -91,9 +70,21 @@ function SearchPage({ CITY_LIST }) {
                       CITY_LIST={CITY_LIST}
                       listOfSuggestions={listOfSuggestions}
                       setListOfSuggestions={setListOfSuggestions}
+                      cityNameInField={cityNameInField}
+                      setCityNameInField={setCityNameInField}
+                      executingAutocompleteLookup={executingAutocompleteLookup}
+                      suggestionCurrentlySelected={suggestionCurrentlySelected}
+                      setSuggestionCurrentlySelected={
+                        setSuggestionCurrentlySelected
+                      }
                     />
                   ) : (
-                    <GeoCoordSearchField />
+                    <GeoCoordSearchField
+                      geoCoordsInFields={geoCoordsInFields}
+                      setGeoCoordsInFields={setGeoCoordsInFields}
+                      errorStateGeoCoordField={errorStateGeoCoordField}
+                      setErrorStateGeoCoordField={setErrorStateGeoCoordField}
+                    />
                   )}
                 </Grid>
                 <Hidden xsDown>
@@ -118,34 +109,16 @@ function SearchPage({ CITY_LIST }) {
                 </Hidden>
               </Grid>
               <Grid item xs={12} md={4} lg={3} style={{ marginTop: 16 }}>
-                {listOfSuggestions.length !== 0 && (
-                  <Link
-                    ref={linkButtonRef}
-                    to={`/${listOfSuggestions[0].city.id}`}
-                    style={{ textDecoration: "none", color: "inherit" }}
-                  >
-                    <Button
-                      fullWidth
-                      startIcon={<ExploreIcon />}
-                      color="primary"
-                      variant="contained"
-                    >
-                      Search
-                    </Button>
-                  </Link>
-                )}
-                {listOfSuggestions.length === 0 && (
-                  <Button
-                    ref={errorButtonRef}
-                    fullWidth
-                    startIcon={<ExploreIcon />}
-                    color="primary"
-                    variant="contained"
-                    onClick={() => setErrorStateCityNameField(true)}
-                  >
-                    Search
-                  </Button>
-                )}
+                <SearchButton
+                  isSearchTypeCitySelected={isSearchTypeCitySelected}
+                  listOfSuggestions={listOfSuggestions}
+                  setErrorStateCityNameField={setErrorStateCityNameField}
+                  setErrorStateGeoCoordField={setErrorStateGeoCoordField}
+                  geoCoordsInFields={geoCoordsInFields}
+                  executingAutocompleteLookup={executingAutocompleteLookup}
+                  API_KEY={API_KEY}
+                  suggestionCurrentlySelected={suggestionCurrentlySelected}
+                />
               </Grid>
             </CardContent>
           </form>
