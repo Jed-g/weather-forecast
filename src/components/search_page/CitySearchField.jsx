@@ -11,9 +11,12 @@ import {
   Paper,
   MenuList,
   makeStyles,
+  LinearProgress,
 } from "@material-ui/core";
 import ClearIcon from "@material-ui/icons/Clear";
 import diacritics from "diacritics";
+
+import CITY_LIST from "../../api/city.list.min.json";
 
 const removeDiacritics = diacritics.remove;
 
@@ -106,8 +109,12 @@ function calculateClosestMatches(
         breakBetweenIterationsInMs
       );
     } else {
-      setListOfSuggestions(bestFitArray);
       executingAutocompleteLookup.current = false;
+      if (cityName) {
+        setListOfSuggestions(bestFitArray);
+      } else {
+        setListOfSuggestions([]);
+      }
     }
   }
 }
@@ -119,7 +126,6 @@ const useStyles = makeStyles({
 });
 
 function CitySearchField({
-  CITY_LIST,
   listOfSuggestions,
   setListOfSuggestions,
   errorStateCityNameField,
@@ -144,16 +150,17 @@ function CitySearchField({
   useEffect(() => {
     const breakBetweenIterationsInMs = 5;
     cancelExec.current = executingAutocompleteLookup.current;
-    if (CITY_LIST && cityNameInField.replace(/[#^$|/\\{}()?*+.[\]]/g, "")) {
+    if (CITY_LIST) {
       setTimeout(() => {
         executingAutocompleteLookup.current = true;
+        setListOfSuggestions((prev) => prev);
         cancelExec.current = false;
         calculateClosestMatches(
           [],
           CITY_LIST,
           cityNameInField.replace(/[#^$|/\\{}()?*+.[\]]/g, ""),
           5,
-          15,
+          30,
           0,
           setListOfSuggestions,
           breakBetweenIterationsInMs,
@@ -161,10 +168,8 @@ function CitySearchField({
           executingAutocompleteLookup
         );
       }, 2 * breakBetweenIterationsInMs);
-    } else {
-      setListOfSuggestions([]);
     }
-  }, [cityNameInField, CITY_LIST]);
+  }, [cityNameInField]);
 
   const textField = useRef();
   const [textFieldWidth, setTextFieldWidth] = useState(0);
@@ -267,7 +272,7 @@ function CitySearchField({
               setErrorStateCityNameField(false);
             }}
           />
-          {listOfSuggestions.length !== 0 && (
+          {executingAutocompleteLookup.current && (
             <Popper
               style={{ zIndex: 1500, width: textFieldWidth }}
               open={open}
@@ -284,40 +289,75 @@ function CitySearchField({
                       placement === "bottom" ? "center top" : "center bottom",
                   }}
                 >
-                  <Paper>
-                    <MenuList>
-                      {listOfSuggestions.map((cityObject, index) => {
-                        return (
-                          <MenuItem
-                            onClick={() =>
-                              executingAutocompleteLookup.current ||
-                              setRedirect(
-                                <Redirect push to={`/${cityObject.city.id}`} />
-                              )
-                            }
-                            selected={index === suggestionCurrentlySelected}
-                            className={
-                              listOfSuggestions.length - 1 === index
-                                ? null
-                                : classes.menuItemBorderBottom
-                            }
-                            value={cityObject.city.id}
-                            key={cityObject.city.id}
-                          >
-                            {cityObject.city.name}
-                            {cityObject.city.state &&
-                              `, ${cityObject.city.state}`}
-                            {cityObject.city.country &&
-                              `, ${cityObject.city.country}`}
-                          </MenuItem>
-                        );
-                      })}
-                    </MenuList>
+                  <Paper style={{ height: "30px" }}>
+                    <LinearProgress
+                      style={{
+                        width: `calc(${textFieldWidth} - 40px)`,
+                        top: "50%",
+                        left: "50%",
+                        transform: "translate(-50%, -50%)",
+                      }}
+                    />
                   </Paper>
                 </Grow>
               )}
             </Popper>
           )}
+          {!executingAutocompleteLookup.current &&
+            listOfSuggestions.length !== 0 && (
+              <Popper
+                style={{ zIndex: 1500, width: textFieldWidth }}
+                open={open}
+                anchorEl={anchorEl}
+                role={undefined}
+                transition
+                disablePortal
+              >
+                {({ TransitionProps, placement }) => (
+                  <Grow
+                    {...TransitionProps}
+                    style={{
+                      transformOrigin:
+                        placement === "bottom" ? "center top" : "center bottom",
+                    }}
+                  >
+                    <Paper>
+                      <MenuList>
+                        {listOfSuggestions.map((cityObject, index) => {
+                          return (
+                            <MenuItem
+                              onClick={() =>
+                                executingAutocompleteLookup.current ||
+                                setRedirect(
+                                  <Redirect
+                                    push
+                                    to={`/${cityObject.city.id}`}
+                                  />
+                                )
+                              }
+                              selected={index === suggestionCurrentlySelected}
+                              className={
+                                listOfSuggestions.length - 1 === index
+                                  ? null
+                                  : classes.menuItemBorderBottom
+                              }
+                              value={cityObject.city.id}
+                              key={cityObject.city.id}
+                            >
+                              {cityObject.city.name}
+                              {cityObject.city.state &&
+                                `, ${cityObject.city.state}`}
+                              {cityObject.city.country &&
+                                `, ${cityObject.city.country}`}
+                            </MenuItem>
+                          );
+                        })}
+                      </MenuList>
+                    </Paper>
+                  </Grow>
+                )}
+              </Popper>
+            )}
         </div>
       </ClickAwayListener>
     </>

@@ -1,24 +1,25 @@
-import React, { useState, useRef } from "react";
+import React, { useState, useRef, lazy, Suspense } from "react";
 import {
   Card,
   CardContent,
   CardHeader,
-  CardMedia,
   Grid,
   Box,
   Typography,
   Hidden,
+  CircularProgress,
 } from "@material-ui/core";
 import SearchIcon from "@material-ui/icons/Search";
-import CitySearchField from "./CitySearchField";
 import GeoCoordSearchField from "./GeoCoordSearchField";
 import DropdownMenu from "./DropdownMenu";
 import ButtonMenu from "./ButtonMenu";
-import SearchImage from "./search_image.jpg";
 import SearchButton from "./SearchButton";
+import SearchImage from "./SearchImage";
 
-function SearchPage({ API_KEY, CITY_LIST }) {
-  const [isSearchTypeCitySelected, updateIsSearchTypeCitySelected] = useState(
+const CitySearchField = lazy(() => import("./CitySearchField"));
+
+function SearchPage() {
+  const [isSearchTypeCitySelected, setIsSearchTypeCitySelected] = useState(
     true
   );
 
@@ -48,36 +49,53 @@ function SearchPage({ API_KEY, CITY_LIST }) {
   const [errorStateGeoCoordField, setErrorStateGeoCoordField] = useState(false);
 
   return (
-    <Grid container>
+    <Grid container style={{ margin: "40px 0" }}>
       <Grid item xs={1} sm={3} md={4}></Grid>
       <Grid item xs={10} sm={6} md={4}>
         <Card raised>
-          <CardMedia
-            height={200}
-            image={SearchImage}
-            component="img"
-            alt="Nature Image"
-          />
+          <SearchImage />
           <CardHeader disableTypography title={title} />
           <form autoComplete="off" spellCheck="false">
             <CardContent>
               <Grid container spacing={2}>
                 <Grid item xs={12}>
                   {isSearchTypeCitySelected ? (
-                    <CitySearchField
-                      errorStateCityNameField={errorStateCityNameField}
-                      setErrorStateCityNameField={setErrorStateCityNameField}
-                      CITY_LIST={CITY_LIST}
-                      listOfSuggestions={listOfSuggestions}
-                      setListOfSuggestions={setListOfSuggestions}
-                      cityNameInField={cityNameInField}
-                      setCityNameInField={setCityNameInField}
-                      executingAutocompleteLookup={executingAutocompleteLookup}
-                      suggestionCurrentlySelected={suggestionCurrentlySelected}
-                      setSuggestionCurrentlySelected={
-                        setSuggestionCurrentlySelected
+                    <Suspense
+                      fallback={
+                        <div
+                          style={{
+                            width: "100%",
+                            height: "56px",
+                            display: "flex",
+                            justifyContent: "center",
+                            alignItems: "center",
+                          }}
+                        >
+                          <CircularProgress disableShrink />
+                          <Typography style={{ marginLeft: "12px" }}>
+                            Loading City Data...
+                          </Typography>
+                        </div>
                       }
-                    />
+                    >
+                      <CitySearchField
+                        errorStateCityNameField={errorStateCityNameField}
+                        setErrorStateCityNameField={setErrorStateCityNameField}
+                        listOfSuggestions={listOfSuggestions}
+                        setListOfSuggestions={setListOfSuggestions}
+                        cityNameInField={cityNameInField}
+                        setCityNameInField={setCityNameInField}
+                        executingAutocompleteLookup={
+                          executingAutocompleteLookup
+                        }
+                        suggestionCurrentlySelected={
+                          suggestionCurrentlySelected
+                        }
+                        setSuggestionCurrentlySelected={
+                          setSuggestionCurrentlySelected
+                        }
+                      />
+                    </Suspense>
                   ) : (
                     <GeoCoordSearchField
                       geoCoordsInFields={geoCoordsInFields}
@@ -91,9 +109,7 @@ function SearchPage({ API_KEY, CITY_LIST }) {
                   <Grid item xs={12}>
                     <ButtonMenu
                       isSearchTypeCitySelected={isSearchTypeCitySelected}
-                      updateIsSearchTypeCitySelected={
-                        updateIsSearchTypeCitySelected
-                      }
+                      setIsSearchTypeCitySelected={setIsSearchTypeCitySelected}
                     />
                   </Grid>
                 </Hidden>
@@ -101,9 +117,7 @@ function SearchPage({ API_KEY, CITY_LIST }) {
                   <Grid item xs={12}>
                     <DropdownMenu
                       isSearchTypeCitySelected={isSearchTypeCitySelected}
-                      updateIsSearchTypeCitySelected={
-                        updateIsSearchTypeCitySelected
-                      }
+                      setIsSearchTypeCitySelected={setIsSearchTypeCitySelected}
                     />
                   </Grid>
                 </Hidden>
@@ -116,7 +130,6 @@ function SearchPage({ API_KEY, CITY_LIST }) {
                   setErrorStateGeoCoordField={setErrorStateGeoCoordField}
                   geoCoordsInFields={geoCoordsInFields}
                   executingAutocompleteLookup={executingAutocompleteLookup}
-                  API_KEY={API_KEY}
                   suggestionCurrentlySelected={suggestionCurrentlySelected}
                 />
               </Grid>

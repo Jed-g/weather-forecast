@@ -1,35 +1,21 @@
-import React, { useState, useEffect, useRef } from "react";
+import React, { useState, useEffect, useRef, useContext } from "react";
 import { Redirect } from "react-router-dom";
 import { Button } from "@material-ui/core";
 import ExploreIcon from "@material-ui/icons/Explore";
 import Coordinates from "coordinate-parser";
+import { ApiKeyContext } from "../../App";
 
-function waitForExecToFinish(executingAutocompleteLookup) {
-  return new Promise((resolve) => {
-    const intervalCheck = setInterval(() => {
-      if (executingAutocompleteLookup.current === false) {
-        clearInterval(intervalCheck);
-        resolve();
-      }
-    }, 10);
-  });
-}
-
-async function handleClick({
+function handleClick({
   isSearchTypeCitySelected,
   listOfSuggestionsPersist,
   setErrorStateCityNameField,
   setErrorStateGeoCoordField,
   geoCoordsInFields,
-  executingAutocompleteLookup,
   API_KEY,
   setRedirect,
   suggestionCurrentlySelected,
 }) {
   if (isSearchTypeCitySelected) {
-    executingAutocompleteLookup.current &&
-      (await waitForExecToFinish(executingAutocompleteLookup));
-
     if (listOfSuggestionsPersist.current.length !== 0) {
       setRedirect(
         <Redirect
@@ -71,23 +57,30 @@ async function handleGeoCoords({
   }
 
   let coordinates;
+
   try {
     coordinates = new Coordinates(
       `${geoCoordsInFields.latitude}, ${geoCoordsInFields.longitude}`
     );
-  } catch (err) {
-    console.error(err);
-  }
+  } catch (err) {}
 
   if (coordinates && onlyLatitudeThrewError && onlyLongitudeThrewError) {
     const response = await fetch(
-      `http://api.openweathermap.org/data/2.5/weather?lat=${coordinates.getLatitude()}&lon=${coordinates.getLongitude()}&appid=${API_KEY}`
+      `https://api.openweathermap.org/data/2.5/weather?lat=${coordinates.getLatitude()}&lon=${coordinates.getLongitude()}&appid=${API_KEY}`
     );
+
     if (!response.ok) {
       setErrorStateGeoCoordField(true);
     } else {
       const data = await response.json();
-      setRedirect(<Redirect push to={`/${data.id}`} />);
+      const verifyResponseById = await fetch(
+        `https://api.openweathermap.org/data/2.5/weather?id=${data.id}&appid=${API_KEY}`
+      );
+      if (!verifyResponseById.ok) {
+        setErrorStateGeoCoordField(true);
+      } else {
+        setRedirect(<Redirect push to={`/${data.id}`} />);
+      }
     }
   } else {
     setErrorStateGeoCoordField(true);
@@ -105,7 +98,9 @@ function SearchButton(props) {
     const eventListenerFunction = function (e) {
       document.removeEventListener("keydown", eventListenerFunction);
       if (e.key === "Enter") {
-        buttonRef.current && buttonRef.current.click();
+        !props.executingAutocompleteLookup.current &&
+          buttonRef.current &&
+          buttonRef.current.click();
       }
     };
     document.addEventListener("keydown", eventListenerFunction);
@@ -125,6 +120,8 @@ function SearchButton(props) {
     };
   }, []);
 
+  const API_KEY = useContext(ApiKeyContext);
+
   return (
     <>
       {redirect}
@@ -137,8 +134,9 @@ function SearchButton(props) {
         onClick={() =>
           handleClick({
             ...props,
-            setRedirect: setRedirect,
-            listOfSuggestionsPersist: listOfSuggestionsPersist,
+            API_KEY,
+            setRedirect,
+            listOfSuggestionsPersist,
           })
         }
       >

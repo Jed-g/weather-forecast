@@ -1,22 +1,19 @@
 import React from "react";
 import { Button, ButtonGroup } from "@material-ui/core";
 
-function ButtonMenu({
-  isSearchTypeCitySelected,
-  updateIsSearchTypeCitySelected,
-}) {
+function ButtonMenu({ isSearchTypeCitySelected, setIsSearchTypeCitySelected }) {
   return (
     <ButtonGroup fullWidth>
       <Button
         disableElevation
-        onClick={() => updateIsSearchTypeCitySelected(true)}
+        onClick={() => setIsSearchTypeCitySelected(true)}
         variant={isSearchTypeCitySelected ? "contained" : "outlined"}
       >
         City Name
       </Button>
       <Button
         disableElevation
-        onClick={() => updateIsSearchTypeCitySelected(false)}
+        onClick={() => setIsSearchTypeCitySelected(false)}
         variant={!isSearchTypeCitySelected ? "contained" : "outlined"}
       >
         Geographic Coordinates

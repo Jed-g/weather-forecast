@@ -3,12 +3,12 @@ import { MenuItem, TextField } from "@material-ui/core";
 
 function DropdownMenu({
   isSearchTypeCitySelected,
-  updateIsSearchTypeCitySelected,
+  setIsSearchTypeCitySelected,
 }) {
   return (
     <TextField
       onChange={(e) =>
-        updateIsSearchTypeCitySelected(e.target.value === "City Name")
+        setIsSearchTypeCitySelected(e.target.value === "City Name")
       }
       fullWidth
       value={isSearchTypeCitySelected ? "City Name" : "Geographic Coordinates"}
