@@ -13,24 +13,26 @@ import {
   Switch as RouterSwitch,
   Route,
 } from "react-router-dom";
-import Header from "./components/Header";
+import Header from "./components/header/Header";
 import {
   ThemeProvider,
   createMuiTheme,
   CssBaseline,
   IconButton,
   CircularProgress,
+  responsiveFontSizes,
 } from "@material-ui/core";
 import Brightness7Icon from "@material-ui/icons/Brightness7";
 import Brightness2Icon from "@material-ui/icons/Brightness2";
 import { API_KEY } from "./api/ENV.json";
+import Tabs from "./components/main_page/Tabs";
 
 const SearchPage = lazy(() => import("./components/search_page/SearchPage"));
 
 const MainPage = lazy(() => import("./components/main_page/MainPage"));
 
 function selectTheme(state, theme) {
-  const darkTheme = createMuiTheme({
+  let darkTheme = createMuiTheme({
     palette: {
       primary: {
         main: "#00acc1",
@@ -42,7 +44,7 @@ function selectTheme(state, theme) {
     },
   });
 
-  const lightTheme = createMuiTheme({
+  let lightTheme = createMuiTheme({
     palette: {
       background: {
         default: "#f8f9fa",
@@ -51,20 +53,12 @@ function selectTheme(state, theme) {
       primary: {
         main: "#00bfa5",
       },
-    },
-    overrides: {
-      MuiButton: {
-        root: {
-          "&:hover": {
-            backgroundColor: "#EEEEEE",
-          },
-        },
-        contained: {
-          backgroundColor: "#BDBDBD",
-        },
-      },
+      type: "light",
     },
   });
+
+  darkTheme = responsiveFontSizes(darkTheme);
+  lightTheme = responsiveFontSizes(lightTheme);
 
   if (!state) {
     const themeInLocalStorage = localStorage.getItem("theme");
@@ -96,15 +90,18 @@ function initialLoad(SET_API_KEY) {
 }
 
 export const ApiKeyContext = createContext();
+export const SettingsContext = createContext();
 
 function App() {
   const [API_KEY, SET_API_KEY] = useState(null);
+  const [settings, setSettings] = useState({});
 
   useEffect(() => {
     initialLoad(SET_API_KEY);
   }, []);
 
   const [theme, setTheme] = useReducer(selectTheme, selectTheme(null, "dark"));
+  const [tabSelected, setTabSelected] = useState(null);
 
   return (
     <div className="App">
@@ -116,50 +113,59 @@ function App() {
               height: "100vh",
               display: "flex",
               flexDirection: "column",
-              justifyContent: "space-between",
             }}
           >
-            <Header />
-            <div
-              style={{
-                display: "flex",
-                justifyContent: "center",
-                alignItems: "center",
-                flexGrow: "1",
-              }}
-            >
-              {API_KEY && (
-                <Suspense fallback={<CircularProgress />}>
-                  <ApiKeyContext.Provider value={API_KEY}>
-                    <RouterSwitch>
-                      <Route
-                        exact
-                        path="/"
-                        render={(props) => <SearchPage {...props} />}
-                      />
-                      <Route
-                        path="/:id"
-                        render={(props) => <MainPage {...props} />}
-                      />
-                    </RouterSwitch>
-                  </ApiKeyContext.Provider>
-                </Suspense>
-              )}
-            </div>
-            <div style={{ width: "100vw", textAlign: "right" }}>
-              <IconButton
-                style={{ margin: "10px" }}
-                onClick={() => {
-                  setTheme(theme.palette.type === "dark" ? "light" : "dark");
+            <SettingsContext.Provider value={[settings, setSettings]}>
+              <Header />
+              <Route
+                path="/:id"
+                render={(props) => (
+                  <Tabs {...props} tabSelected={tabSelected} />
+                )}
+              />
+              <div
+                style={{
+                  display: "flex",
+                  flexDirection: "column",
+                  justifyContent: "center",
+                  alignItems: "center",
+                  flexGrow: "1",
                 }}
               >
-                {theme.palette.type === "dark" ? (
-                  <Brightness2Icon />
-                ) : (
-                  <Brightness7Icon />
+                {API_KEY && (
+                  <Suspense fallback={<CircularProgress />}>
+                    <ApiKeyContext.Provider value={API_KEY}>
+                      <RouterSwitch>
+                        <Route exact path="/" component={SearchPage} />
+                        <Route
+                          path="/:id"
+                          render={(props) => (
+                            <MainPage
+                              {...props}
+                              setTabSelected={setTabSelected}
+                            />
+                          )}
+                        />
+                      </RouterSwitch>
+                    </ApiKeyContext.Provider>
+                  </Suspense>
                 )}
-              </IconButton>
-            </div>
+              </div>
+              <div style={{ width: "100vw", textAlign: "right" }}>
+                <IconButton
+                  style={{ margin: "0 10px 10px 0" }}
+                  onClick={() => {
+                    setTheme(theme.palette.type === "dark" ? "light" : "dark");
+                  }}
+                >
+                  {theme.palette.type === "dark" ? (
+                    <Brightness2Icon />
+                  ) : (
+                    <Brightness7Icon />
+                  )}
+                </IconButton>
+              </div>
+            </SettingsContext.Provider>
           </div>
         </Router>
       </ThemeProvider>

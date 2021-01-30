@@ -11,11 +11,16 @@ function SearchImage() {
     const img = new Image();
     img.onload = () => {
       setImageLoaded(true);
-      fullResCardMedia.current.style.filter = "";
     };
 
     img.src = SearchImageFullRes;
   }, []);
+
+  useEffect(() => {
+    if (fullResCardMedia.current) {
+      fullResCardMedia.current.style.filter = "";
+    }
+  }, [imageLoaded]);
 
   return !imageLoaded ? (
     <CardMedia

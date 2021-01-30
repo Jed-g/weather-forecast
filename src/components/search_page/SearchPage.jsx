@@ -49,7 +49,7 @@ function SearchPage() {
   const [errorStateGeoCoordField, setErrorStateGeoCoordField] = useState(false);
 
   return (
-    <Grid container style={{ margin: "40px 0" }}>
+    <Grid container style={{ margin: "40px 0 20px" }}>
       <Grid item xs={1} sm={3} md={4}></Grid>
       <Grid item xs={10} sm={6} md={4}>
         <Card raised>

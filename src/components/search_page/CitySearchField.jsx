@@ -10,8 +10,8 @@ import {
   ClickAwayListener,
   Paper,
   MenuList,
-  makeStyles,
   LinearProgress,
+  Divider,
 } from "@material-ui/core";
 import ClearIcon from "@material-ui/icons/Clear";
 import diacritics from "diacritics";
@@ -119,12 +119,6 @@ function calculateClosestMatches(
   }
 }
 
-const useStyles = makeStyles({
-  menuItemBorderBottom: {
-    borderBottom: "1px solid #808080",
-  },
-});
-
 function CitySearchField({
   listOfSuggestions,
   setListOfSuggestions,
@@ -136,8 +130,6 @@ function CitySearchField({
   suggestionCurrentlySelected,
   setSuggestionCurrentlySelected,
 }) {
-  const classes = useStyles();
-
   const textFieldInner = useRef();
   useEffect(() => textFieldInner.current.focus(), []);
 
@@ -325,31 +317,29 @@ function CitySearchField({
                       <MenuList>
                         {listOfSuggestions.map((cityObject, index) => {
                           return (
-                            <MenuItem
-                              onClick={() =>
-                                executingAutocompleteLookup.current ||
-                                setRedirect(
-                                  <Redirect
-                                    push
-                                    to={`/${cityObject.city.id}`}
-                                  />
-                                )
-                              }
-                              selected={index === suggestionCurrentlySelected}
-                              className={
-                                listOfSuggestions.length - 1 === index
-                                  ? null
-                                  : classes.menuItemBorderBottom
-                              }
-                              value={cityObject.city.id}
-                              key={cityObject.city.id}
-                            >
-                              {cityObject.city.name}
-                              {cityObject.city.state &&
-                                `, ${cityObject.city.state}`}
-                              {cityObject.city.country &&
-                                `, ${cityObject.city.country}`}
-                            </MenuItem>
+                            <div key={cityObject.city.id}>
+                              <MenuItem
+                                onClick={() =>
+                                  executingAutocompleteLookup.current ||
+                                  setRedirect(
+                                    <Redirect
+                                      push
+                                      to={`/${cityObject.city.id}`}
+                                    />
+                                  )
+                                }
+                                selected={index === suggestionCurrentlySelected}
+                              >
+                                {cityObject.city.name}
+                                {cityObject.city.state &&
+                                  `, ${cityObject.city.state}`}
+                                {cityObject.city.country &&
+                                  `, ${cityObject.city.country}`}
+                              </MenuItem>
+                              {listOfSuggestions.length - 1 === index || (
+                                <Divider />
+                              )}
+                            </div>
                           );
                         })}
                       </MenuList>
