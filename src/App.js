@@ -24,7 +24,7 @@ import {
 } from "@material-ui/core";
 import Brightness7Icon from "@material-ui/icons/Brightness7";
 import Brightness2Icon from "@material-ui/icons/Brightness2";
-import { API_KEY } from "./api/ENV.json";
+import { API_KEY_OPENWEATHERMAP, API_KEY_MAPBOX } from "./api/ENV.json";
 import Tabs from "./components/main_page/Tabs";
 
 const SearchPage = lazy(() => import("./components/search_page/SearchPage"));
@@ -86,18 +86,18 @@ function selectTheme(state, theme) {
 }
 
 function initialLoad(SET_API_KEY) {
-  SET_API_KEY(API_KEY);
+  SET_API_KEY({ API_KEY_OPENWEATHERMAP, API_KEY_MAPBOX });
 }
 
-export const ApiKeyContext = createContext();
+export const ApiKeysContext = createContext();
 export const SettingsContext = createContext();
 
 function App() {
-  const [API_KEY, SET_API_KEY] = useState(null);
+  const [API_KEYS, SET_API_KEYS] = useState(null);
   const [settings, setSettings] = useState({});
 
   useEffect(() => {
-    initialLoad(SET_API_KEY);
+    initialLoad(SET_API_KEYS);
   }, []);
 
   const [theme, setTheme] = useReducer(selectTheme, selectTheme(null, "dark"));
@@ -132,9 +132,9 @@ function App() {
                   flexGrow: "1",
                 }}
               >
-                {API_KEY && (
+                {API_KEYS && (
                   <Suspense fallback={<CircularProgress />}>
-                    <ApiKeyContext.Provider value={API_KEY}>
+                    <ApiKeysContext.Provider value={API_KEYS}>
                       <RouterSwitch>
                         <Route exact path="/" component={SearchPage} />
                         <Route
@@ -147,7 +147,7 @@ function App() {
                           )}
                         />
                       </RouterSwitch>
-                    </ApiKeyContext.Provider>
+                    </ApiKeysContext.Provider>
                   </Suspense>
                 )}
               </div>

@@ -3,7 +3,7 @@ import { Redirect } from "react-router-dom";
 import { Button } from "@material-ui/core";
 import ExploreIcon from "@material-ui/icons/Explore";
 import Coordinates from "coordinate-parser";
-import { ApiKeyContext } from "../../App";
+import { ApiKeysContext } from "../../App";
 
 function handleClick({
   isSearchTypeCitySelected,
@@ -120,7 +120,7 @@ function SearchButton(props) {
     };
   }, []);
 
-  const API_KEY = useContext(ApiKeyContext);
+  const API_KEY = useContext(ApiKeysContext).API_KEY_OPENWEATHERMAP;
 
   return (
     <>
