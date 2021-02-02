@@ -47,8 +47,8 @@ function selectTheme(state, theme) {
   let lightTheme = createMuiTheme({
     palette: {
       background: {
-        default: "#f8f9fa",
-        paper: "#ffffff",
+        default: "#DCDCDC",
+        paper: "#F5F5F5",
       },
       primary: {
         main: "#00bfa5",
@@ -94,7 +94,12 @@ export const SettingsContext = createContext();
 
 function App() {
   const [API_KEYS, SET_API_KEYS] = useState(null);
-  const [settings, setSettings] = useState({});
+  const [settings, setSettings] = useState({
+    temperature: "c",
+    distance: "m",
+    speed: "kph",
+    pressure: "hpa",
+  });
 
   useEffect(() => {
     initialLoad(SET_API_KEYS);

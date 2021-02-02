@@ -1,5 +1,5 @@
-import React, { useEffect, useRef, useContext } from "react";
-import { useTheme } from "@material-ui/core";
+import React, { useEffect, useRef, useContext, useState } from "react";
+import { useTheme, useMediaQuery, Paper } from "@material-ui/core";
 import mapboxgl from "mapbox-gl";
 import "mapbox-gl/dist/mapbox-gl.css";
 import { ApiKeysContext } from "../../App";
@@ -27,6 +27,25 @@ function Map({ coords }) {
 
   const API_KEY_MAPBOX = useContext(ApiKeysContext).API_KEY_MAPBOX;
 
+  const breakpointMatches = useMediaQuery(theme.breakpoints.down("sm"));
+  const breakpointMatchesPersist = useRef(breakpointMatches);
+  breakpointMatchesPersist.current = breakpointMatches;
+  const [heightOfMap, setHeightOfMap] = useState(0);
+
+  useEffect(() => {
+    function eventListenerFunction() {
+      const mapContainer = document.querySelector("#map");
+      setHeightOfMap(
+        breakpointMatchesPersist.current
+          ? mapContainer.clientWidth / 2
+          : mapContainer.clientWidth
+      );
+      map.current.resize();
+    }
+    window.addEventListener("resize", eventListenerFunction);
+    return () => window.removeEventListener("resize", eventListenerFunction);
+  }, []);
+
   useEffect(() => {
     if (!map.current) {
       mapboxgl.accessToken = API_KEY_MAPBOX;
@@ -47,6 +66,13 @@ function Map({ coords }) {
       map.current.on("load", () => {
         // Start the animation.
         rotateCamera(0, 0, playAnimation, map, 1);
+        const mapContainer = document.querySelector("#map");
+        setHeightOfMap(
+          breakpointMatchesPersist.current
+            ? mapContainer.clientWidth / 2
+            : mapContainer.clientWidth
+        );
+        map.current.resize();
       });
 
       map.current.addControl(
@@ -73,11 +99,12 @@ function Map({ coords }) {
   useEffect(() => () => (playAnimation.current = false), []);
 
   return (
-    <div
+    <Paper
+      elevation={4}
       id="map"
-      style={{ width: "100vw", height: "70vh" }}
+      style={{ width: "100%", height: heightOfMap }}
       onMouseDown={() => (playAnimation.current = false)}
-    ></div>
+    ></Paper>
   );
 }
 

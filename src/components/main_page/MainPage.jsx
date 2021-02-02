@@ -4,7 +4,7 @@ import { Switch as RouterSwitch, Route, useHistory } from "react-router-dom";
 import Current from "./Current";
 import Hourly from "./Hourly";
 import Daily from "./Daily";
-import { CircularProgress, Snackbar } from "@material-ui/core";
+import { CircularProgress, Snackbar, Grid } from "@material-ui/core";
 import MuiAlert from "@material-ui/lab/Alert";
 import Map from "./Map";
 
@@ -50,43 +50,63 @@ function MainPage({ match, setTabSelected }) {
     <>
       {stationData && (
         <>
-          <Map coords={{ lat: stationData.lat, lon: stationData.lon }} />
-          <RouterSwitch>
-            <Route
-              exact
-              path={`/${match.params.id}`}
-              render={(props) => (
-                <Current
-                  setTabSelected={setTabSelected}
-                  {...props}
-                  stationData={stationData}
-                />
-              )}
-            />
-            <Route
-              exact
-              path={`/${match.params.id}/hourly`}
-              render={(props) => (
-                <Hourly
-                  setTabSelected={setTabSelected}
-                  {...props}
-                  stationData={stationData}
-                />
-              )}
-            />
-            <Route
-              exact
-              path={`/${match.params.id}/daily`}
-              render={(props) => (
-                <Daily
-                  setTabSelected={setTabSelected}
-                  {...props}
-                  stationData={stationData}
-                />
-              )}
-            />
-            <Route path="*" render={() => history.push("/")} />
-          </RouterSwitch>
+          <Grid
+            justify="center"
+            container
+            style={{ width: "100%", height: "100%", margin: "40px 0 20px" }}
+          >
+            <Grid
+              container
+              item
+              xs={12}
+              lg={8}
+              alignItems="flex-start"
+              alignContent="flex-start"
+              spacing={4}
+            >
+              <Grid item md={8} xs={12}>
+                <RouterSwitch>
+                  <Route
+                    exact
+                    path={`/${match.params.id}`}
+                    render={(props) => (
+                      <Current
+                        setTabSelected={setTabSelected}
+                        {...props}
+                        stationData={stationData}
+                      />
+                    )}
+                  />
+                  <Route
+                    exact
+                    path={`/${match.params.id}/hourly`}
+                    render={(props) => (
+                      <Hourly
+                        setTabSelected={setTabSelected}
+                        {...props}
+                        stationData={stationData}
+                      />
+                    )}
+                  />
+                  <Route
+                    exact
+                    path={`/${match.params.id}/daily`}
+                    render={(props) => (
+                      <Daily
+                        setTabSelected={setTabSelected}
+                        {...props}
+                        stationData={stationData}
+                      />
+                    )}
+                  />
+                  <Route path="*" render={() => history.push("/")} />
+                </RouterSwitch>
+              </Grid>
+              <Grid item md={4} xs={12}>
+                <Map coords={{ lat: stationData.lat, lon: stationData.lon }} />
+              </Grid>
+            </Grid>
+          </Grid>
         </>
       )}
       {stationData && (

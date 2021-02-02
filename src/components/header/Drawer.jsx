@@ -69,50 +69,138 @@ function Drawer() {
           <Divider />
           <List subheader={<ListSubheader>Settings</ListSubheader>}>
             <ListItem>
-              <ListItemText primary="test1" />
+              <ListItemText primary="Temperature" />
               <ListItemSecondaryAction>
                 <ButtonGroup size="small" variant="text">
-                  <Button className={classes.settingButtons} color="primary">
-                    Km/h
+                  <Button
+                    className={classes.settingButtons}
+                    color={settings.temperature === "c" && "primary"}
+                    onClick={() =>
+                      setSettings((prev) => ({ ...prev, temperature: "c" }))
+                    }
+                  >
+                    °C
                   </Button>
-                  <Button className={classes.settingButtons}>Mp/h</Button>
-                  <Button className={classes.settingButtons}>m/s</Button>
+                  <Button
+                    className={classes.settingButtons}
+                    color={settings.temperature === "f" && "primary"}
+                    onClick={() =>
+                      setSettings((prev) => ({ ...prev, temperature: "f" }))
+                    }
+                  >
+                    °F
+                  </Button>
+                  <Button
+                    className={classes.settingButtons}
+                    color={settings.temperature === "k" && "primary"}
+                    onClick={() =>
+                      setSettings((prev) => ({ ...prev, temperature: "k" }))
+                    }
+                  >
+                    K
+                  </Button>
                 </ButtonGroup>
               </ListItemSecondaryAction>
             </ListItem>
             <ListItem>
-              <ListItemText primary="test2" />
+              <ListItemText primary="Distance" />
               <ListItemSecondaryAction>
                 <ButtonGroup size="small" variant="text">
-                  <Button className={classes.settingButtons} color="primary">
-                    Km/h
+                  <Button
+                    className={classes.settingButtons}
+                    color={settings.distance === "m" && "primary"}
+                    onClick={() =>
+                      setSettings((prev) => ({ ...prev, distance: "m" }))
+                    }
+                  >
+                    m
                   </Button>
-                  <Button className={classes.settingButtons}>Mp/h</Button>
-                  <Button className={classes.settingButtons}>m/s</Button>
+                  <Button
+                    className={classes.settingButtons}
+                    color={settings.distance === "km" && "primary"}
+                    onClick={() =>
+                      setSettings((prev) => ({ ...prev, distance: "km" }))
+                    }
+                  >
+                    km
+                  </Button>
+                  <Button
+                    className={classes.settingButtons}
+                    color={settings.distance === "mi" && "primary"}
+                    onClick={() =>
+                      setSettings((prev) => ({ ...prev, distance: "mi" }))
+                    }
+                  >
+                    mi
+                  </Button>
                 </ButtonGroup>
               </ListItemSecondaryAction>
             </ListItem>
             <ListItem>
-              <ListItemText primary="test3" />
+              <ListItemText primary="Speed" />
               <ListItemSecondaryAction>
                 <ButtonGroup size="small" variant="text">
-                  <Button className={classes.settingButtons} color="primary">
-                    Km/h
+                  <Button
+                    className={classes.settingButtons}
+                    color={settings.speed === "kph" && "primary"}
+                    onClick={() =>
+                      setSettings((prev) => ({ ...prev, speed: "kph" }))
+                    }
+                  >
+                    kph
                   </Button>
-                  <Button className={classes.settingButtons}>Mp/h</Button>
-                  <Button className={classes.settingButtons}>m/s</Button>
+                  <Button
+                    className={classes.settingButtons}
+                    color={settings.speed === "mph" && "primary"}
+                    onClick={() =>
+                      setSettings((prev) => ({ ...prev, speed: "mph" }))
+                    }
+                  >
+                    mph
+                  </Button>
+                  <Button
+                    className={classes.settingButtons}
+                    color={settings.speed === "ms" && "primary"}
+                    onClick={() =>
+                      setSettings((prev) => ({ ...prev, speed: "ms" }))
+                    }
+                  >
+                    m/s
+                  </Button>
                 </ButtonGroup>
               </ListItemSecondaryAction>
             </ListItem>
             <ListItem>
-              <ListItemText primary="test4" />
+              <ListItemText primary="Pressure" />
               <ListItemSecondaryAction>
                 <ButtonGroup size="small" variant="text">
-                  <Button className={classes.settingButtons} color="primary">
-                    Km/h
+                  <Button
+                    className={classes.settingButtons}
+                    color={settings.pressure === "hpa" && "primary"}
+                    onClick={() =>
+                      setSettings((prev) => ({ ...prev, pressure: "hpa" }))
+                    }
+                  >
+                    hPa
                   </Button>
-                  <Button className={classes.settingButtons}>Mp/h</Button>
-                  <Button className={classes.settingButtons}>m/s</Button>
+                  <Button
+                    className={classes.settingButtons}
+                    color={settings.pressure === "atm" && "primary"}
+                    onClick={() =>
+                      setSettings((prev) => ({ ...prev, pressure: "atm" }))
+                    }
+                  >
+                    atm
+                  </Button>
+                  <Button
+                    className={classes.settingButtons}
+                    color={settings.pressure === "inhg" && "primary"}
+                    onClick={() =>
+                      setSettings((prev) => ({ ...prev, pressure: "inhg" }))
+                    }
+                  >
+                    inHg
+                  </Button>
                 </ButtonGroup>
               </ListItemSecondaryAction>
             </ListItem>
