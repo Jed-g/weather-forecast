@@ -19,8 +19,19 @@ const useStyles = makeStyles((theme) => ({
     width: "100%",
   },
   header: {
-    fontSize: theme.typography.pxToRem(15),
+    fontSize: theme.typography.pxToRem(18),
     color: theme.palette.text.primary,
+    [theme.breakpoints.down("xs")]: {
+      fontSize: theme.typography.pxToRem(15),
+    },
+  },
+  headerLarge: {
+    fontSize: theme.typography.pxToRem(21),
+    fontWeight: "500",
+    color: theme.palette.text.primary,
+    [theme.breakpoints.down("xs")]: {
+      fontSize: theme.typography.pxToRem(18),
+    },
   },
   summaryContent: {
     justifyContent: "space-between",
@@ -55,13 +66,14 @@ function Hourly({ stationData, setTabSelected }) {
         style={{ marginTop: theme.spacing(4), padding: theme.spacing(2) }}
         className={classes.root}
       >
-        {stationData.hourly.map((entry, index) => {
+        {stationData.hourly.slice(1).map((entry, index) => {
           const date = new Date(
             (entry.dt + stationData.timezone_offset) * 1000
           );
           const time = date.toLocaleString("en-GB", {
             hour: "numeric",
             minute: "numeric",
+            hourCycle: "h23",
           });
 
           const day = date.toLocaleString("en-GB", {
@@ -103,6 +115,7 @@ function Hourly({ stationData, setTabSelected }) {
                   <div
                     style={{
                       display: "flex",
+                      alignItems: "center",
                     }}
                   >
                     <Typography
@@ -111,7 +124,7 @@ function Hourly({ stationData, setTabSelected }) {
                     >
                       {time}
                     </Typography>
-                    <Typography className={classes.header}>
+                    <Typography className={classes.headerLarge}>
                       {settings.temperature === "c"
                         ? Math.round((entry.temp - 273.15) * 10) / 10 + "°C"
                         : settings.temperature === "k"
@@ -174,12 +187,13 @@ function Hourly({ stationData, setTabSelected }) {
                           parameterName="Feels Like"
                           parameterValue={
                             settings.temperature === "c"
-                              ? Math.round((entry.temp - 273.15) * 10) / 10 +
+                              ? Math.round((entry.feels_like - 273.15) * 10) /
+                                  10 +
                                 "°C"
                               : settings.temperature === "k"
-                              ? Math.round(entry.temp * 10) / 10 + "K"
+                              ? Math.round(entry.feels_like * 10) / 10 + "K"
                               : Math.round(
-                                  ((entry.temp * 9) / 5 - 459.67) * 10
+                                  ((entry.feels_like * 9) / 5 - 459.67) * 10
                                 ) /
                                   10 +
                                 "°F"
