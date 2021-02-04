@@ -252,7 +252,7 @@ function Daily({ stationData, setTabSelected }) {
                       </div>
                       <DetailBox
                         parameterName="Precipitation"
-                        parameterValue={entry.pop * 100 + "%"}
+                        parameterValue={Math.round(entry.pop * 100) + "%"}
                       />
                     </div>
                     <div

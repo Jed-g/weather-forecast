@@ -90,10 +90,9 @@ function Hourly({ stationData, setTabSelected }) {
           });
 
           return (
-            <>
+            <React.Fragment key={index}>
               {dayChange && (
                 <Typography
-                  key={day}
                   style={{ margin: theme.spacing(2) }}
                   component="p"
                   variant="h6"
@@ -104,7 +103,6 @@ function Hourly({ stationData, setTabSelected }) {
               <Accordion
                 TransitionProps={{ unmountOnExit: true }}
                 elevation={0}
-                key={index}
                 expanded={expanded === index}
                 onChange={handleChange(index)}
               >
@@ -201,7 +199,7 @@ function Hourly({ stationData, setTabSelected }) {
                         />
                         <DetailBox
                           parameterName="Precipitation"
-                          parameterValue={entry.pop * 100 + "%"}
+                          parameterValue={Math.round(entry.pop * 100) + "%"}
                         />
                       </div>
                       <div
@@ -323,7 +321,7 @@ function Hourly({ stationData, setTabSelected }) {
                   </Paper>
                 </AccordionDetails>
               </Accordion>
-            </>
+            </React.Fragment>
           );
         })}
       </Paper>

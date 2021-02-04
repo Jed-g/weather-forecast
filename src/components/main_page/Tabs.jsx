@@ -25,21 +25,21 @@ function Tabs({ tabSelected, match }) {
           value={tabSelected}
         >
           <Tab
-            label="Current"
+            label="Today"
             onClick={() => {
-              setRedirect(<Redirect to={`/${match.params.id}`} />);
+              setRedirect(<Redirect push to={`/${match.params.id}`} />);
             }}
           />
           <Tab
             label="Hourly"
             onClick={() => {
-              setRedirect(<Redirect to={`/${match.params.id}/hourly`} />);
+              setRedirect(<Redirect push to={`/${match.params.id}/hourly`} />);
             }}
           />
           <Tab
             label="Daily"
             onClick={() => {
-              setRedirect(<Redirect to={`/${match.params.id}/daily`} />);
+              setRedirect(<Redirect push to={`/${match.params.id}/daily`} />);
             }}
           />
         </MuiTabs>

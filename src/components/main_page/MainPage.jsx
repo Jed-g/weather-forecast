@@ -1,7 +1,7 @@
 import React, { useState, useEffect, useContext } from "react";
 import { ApiKeysContext } from "../../App";
 import { Switch as RouterSwitch, Route, useHistory } from "react-router-dom";
-import Current from "./Current";
+import Today from "./Today";
 import Hourly from "./Hourly";
 import Daily from "./Daily";
 import { CircularProgress, Snackbar, Grid } from "@material-ui/core";
@@ -70,7 +70,7 @@ function MainPage({ match, setTabSelected }) {
                     exact
                     path={`/${match.params.id}`}
                     render={(props) => (
-                      <Current
+                      <Today
                         setTabSelected={setTabSelected}
                         {...props}
                         stationData={stationData}
