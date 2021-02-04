@@ -8,10 +8,26 @@ import {
   CardHeader,
   CardActions,
   Button,
+  makeStyles,
 } from "@material-ui/core";
 import { Redirect, useRouteMatch } from "react-router-dom";
 import { SettingsContext } from "../../App";
 import { Water } from "@styled-icons/entypo/Water";
+
+const useStyles = makeStyles((theme) => ({
+  medium: {
+    fontSize: theme.typography.pxToRem(18),
+    [theme.breakpoints.down("xs")]: {
+      fontSize: theme.typography.pxToRem(15),
+    },
+  },
+  small: {
+    fontSize: theme.typography.pxToRem(15),
+    [theme.breakpoints.down("xs")]: {
+      fontSize: theme.typography.pxToRem(12),
+    },
+  },
+}));
 
 function calculateCardAmount(
   firstCard,
@@ -50,7 +66,8 @@ function calculateCardAmount(
   }
 }
 
-function HourlyWidget({ stationData }) {
+function DailyWidget({ stationData }) {
+  const classes = useStyles();
   const [amountToRender, setAmountToRender] = useState(1);
   const amountToRenderPersist = useRef(amountToRender);
   amountToRenderPersist.current = amountToRender;
@@ -91,24 +108,23 @@ function HourlyWidget({ stationData }) {
     <>
       {redirect}
       <Card elevation={4} style={{ marginTop: theme.spacing(4) }}>
-        <CardHeader title="Hourly Forecast"></CardHeader>
+        <CardHeader title="Daily Forecast"></CardHeader>
         <CardContent
           elevation={4}
           style={{
             display: "flex",
           }}
         >
-          {stationData.hourly
+          {stationData.daily
             .slice(1, amountToRender + 1)
             .map((entry, index) => {
               const date = new Date(
                 (entry.dt + stationData.timezone_offset) * 1000
               );
 
-              const time = date.toLocaleString("en-GB", {
-                hour: "numeric",
-                minute: "numeric",
-                hourCycle: "h23",
+              const day = date.toLocaleString("en-GB", {
+                weekday: "short",
+                day: "2-digit",
               });
 
               return (
@@ -135,21 +151,33 @@ function HourlyWidget({ stationData }) {
                     }}
                   >
                     <Typography variant="h6" component="p">
-                      {time}
+                      {day}
                     </Typography>
-                    <Typography
-                      variant="h4"
-                      component="p"
-                      style={{ margin: `${theme.spacing(1)}px 0px` }}
-                    >
-                      {settings.temperature === "c"
-                        ? Math.round((entry.temp - 273.15) * 10) / 10 + "°C"
-                        : settings.temperature === "k"
-                        ? Math.round(entry.temp * 10) / 10 + "K"
-                        : Math.round(((entry.temp * 9) / 5 - 459.67) * 10) /
-                            10 +
-                          "°F"}
-                    </Typography>
+                    <div style={{ display: "flex", alignItems: "center" }}>
+                      <Typography
+                        variant="h5"
+                        component="p"
+                        style={{ margin: `${theme.spacing(1)}px 0px` }}
+                      >
+                        {settings.temperature === "c"
+                          ? Math.round(entry.temp.day - 273.15) + "°C"
+                          : settings.temperature === "k"
+                          ? Math.round(entry.temp.day) + "K"
+                          : Math.round((entry.temp.day * 9) / 5 - 459.67) +
+                            "°F"}
+                      </Typography>
+                      <Typography className={classes.medium}>
+                        {"\u00A0/\u00A0"}
+                      </Typography>
+                      <Typography className={classes.small}>
+                        {settings.temperature === "c"
+                          ? Math.round(entry.temp.night - 273.15) + "°C"
+                          : settings.temperature === "k"
+                          ? Math.round(entry.temp.night) + "K"
+                          : Math.round((entry.temp.night * 9) / 5 - 459.67) +
+                            "°F"}
+                      </Typography>
+                    </div>
                     <img
                       style={{
                         margin: `${theme.spacing(1)}px 0px`,
@@ -177,10 +205,10 @@ function HourlyWidget({ stationData }) {
         </CardContent>
         <CardActions>
           <Button
-            onClick={() => setRedirect(<Redirect push to={`${path}/hourly`} />)}
+            onClick={() => setRedirect(<Redirect push to={`${path}/daily`} />)}
             color="primary"
           >
-            Next 48 Hours
+            Next 7 Days
           </Button>
         </CardActions>
       </Card>
@@ -188,4 +216,4 @@ function HourlyWidget({ stationData }) {
   );
 }
 
-export default HourlyWidget;
+export default DailyWidget;

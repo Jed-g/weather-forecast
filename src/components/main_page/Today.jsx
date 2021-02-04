@@ -1,6 +1,7 @@
 import React, { useEffect } from "react";
 import CurrentWeatherWidget from "./CurrentWeatherWidget";
 import HourlyWidget from "./HourlyWidget";
+import DailyWidget from "./DailyWidget";
 
 function Current({ stationData, setTabSelected }) {
   useEffect(() => {
@@ -11,6 +12,7 @@ function Current({ stationData, setTabSelected }) {
     <>
       <CurrentWeatherWidget stationData={stationData} />
       <HourlyWidget stationData={stationData} />
+      <DailyWidget stationData={stationData} />
     </>
   );
 }
