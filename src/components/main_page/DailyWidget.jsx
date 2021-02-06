@@ -192,7 +192,7 @@ function DailyWidget({ stationData }) {
                       src={`https://openweathermap.org/img/wn/${entry.weather[0].icon}@2x.png`}
                     />
                     <div style={{ display: "flex", alignItems: "center" }}>
-                      <Water width={15} height={15} />
+                      <Water width={15} />
                       <Typography variant="h6" component="p">
                         {"\u00A0"}
                         {Math.round(entry.pop * 100)}%

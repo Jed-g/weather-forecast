@@ -13,7 +13,7 @@ import {
   Button,
   ButtonGroup,
 } from "@material-ui/core";
-import MenuRoundedIcon from "@material-ui/icons/MenuRounded";
+import { Menu } from "@styled-icons/heroicons-solid/Menu";
 import CloudIcon from "@material-ui/icons/Cloud";
 import { SettingsContext } from "../../App";
 
@@ -37,7 +37,7 @@ function Drawer() {
   return (
     <>
       <IconButton onClick={() => setIsDrawerOpen(true)}>
-        <MenuRoundedIcon className={classes.menuIcon} />
+        <Menu width={24} className={classes.menuIcon} />
       </IconButton>
       <SwipeableDrawer
         disableBackdropTransition={!iOS}
