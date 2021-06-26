@@ -26,6 +26,8 @@ import Brightness7Icon from "@material-ui/icons/Brightness7";
 import Brightness2Icon from "@material-ui/icons/Brightness2";
 import { API_KEY_OPENWEATHERMAP, API_KEY_MAPBOX } from "./api/ENV.json";
 import Tabs from "./components/main_page/Tabs";
+import "react-perfect-scrollbar/dist/css/styles.css";
+import PerfectScrollbar from "react-perfect-scrollbar";
 
 const SearchPage = lazy(() => import("./components/search_page/SearchPage"));
 
@@ -113,65 +115,69 @@ function App() {
       <ThemeProvider theme={theme}>
         <CssBaseline />
         <Router>
-          <div
-            style={{
-              height: "100vh",
-              display: "flex",
-              flexDirection: "column",
-            }}
-          >
-            <SettingsContext.Provider value={[settings, setSettings]}>
-              <Header />
-              <Route
-                path="/:id"
-                render={(props) => (
-                  <Tabs {...props} tabSelected={tabSelected} />
-                )}
-              />
-              <div
-                style={{
-                  display: "flex",
-                  flexDirection: "column",
-                  justifyContent: "center",
-                  alignItems: "center",
-                  flexGrow: "1",
-                }}
-              >
-                {API_KEYS && (
-                  <Suspense fallback={<CircularProgress />}>
-                    <ApiKeysContext.Provider value={API_KEYS}>
-                      <RouterSwitch>
-                        <Route exact path="/" component={SearchPage} />
-                        <Route
-                          path="/:id"
-                          render={(props) => (
-                            <MainPage
-                              {...props}
-                              setTabSelected={setTabSelected}
-                            />
-                          )}
-                        />
-                      </RouterSwitch>
-                    </ApiKeysContext.Provider>
-                  </Suspense>
-                )}
-              </div>
-              <div style={{ width: "100vw", textAlign: "right" }}>
-                <IconButton
-                  style={{ margin: "0 10px 10px 0" }}
-                  onClick={() => {
-                    setTheme(theme.palette.type === "dark" ? "light" : "dark");
+          <PerfectScrollbar options={{ suppressScrollX: true }}>
+            <div
+              style={{
+                height: "100vh",
+                display: "flex",
+                flexDirection: "column",
+              }}
+            >
+              <SettingsContext.Provider value={[settings, setSettings]}>
+                <Header />
+                <Route
+                  path="/:id"
+                  render={(props) => (
+                    <Tabs {...props} tabSelected={tabSelected} />
+                  )}
+                />
+                <div
+                  style={{
+                    display: "flex",
+                    flexDirection: "column",
+                    justifyContent: "center",
+                    alignItems: "center",
+                    flexGrow: "1",
                   }}
                 >
-                  {theme.palette.type === "dark" ? (
-                    <Brightness2Icon />
-                  ) : (
-                    <Brightness7Icon />
+                  {API_KEYS && (
+                    <Suspense fallback={<CircularProgress />}>
+                      <ApiKeysContext.Provider value={API_KEYS}>
+                        <RouterSwitch>
+                          <Route exact path="/" component={SearchPage} />
+                          <Route
+                            path="/:id"
+                            render={(props) => (
+                              <MainPage
+                                {...props}
+                                setTabSelected={setTabSelected}
+                              />
+                            )}
+                          />
+                        </RouterSwitch>
+                      </ApiKeysContext.Provider>
+                    </Suspense>
                   )}
-                </IconButton>
-              </div>
-            </SettingsContext.Provider>
-          </div>
+                </div>
+                <div style={{ width: "100vw", textAlign: "right" }}>
+                  <IconButton
+                    style={{ margin: "0 10px 10px 0" }}
+                    onClick={() => {
+                      setTheme(
+                        theme.palette.type === "dark" ? "light" : "dark"
+                      );
+                    }}
+                  >
+                    {theme.palette.type === "dark" ? (
+                      <Brightness2Icon />
+                    ) : (
+                      <Brightness7Icon />
+                    )}
+                  </IconButton>
+                </div>
+              </SettingsContext.Provider>
+            </div>
+          </PerfectScrollbar>
         </Router>
       </ThemeProvider>
     </div>
