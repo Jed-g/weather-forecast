@@ -20,14 +20,22 @@ function Header() {
           <Drawer />
           <Hidden mdUp>
             <Link style={{ textDecoration: "none" }} to="/">
-              <Button size="small" variant="contained">
+              <Button
+                size="small"
+                variant="contained"
+                onClick={() => localStorage.removeItem("id")}
+              >
                 New Search
               </Button>
             </Link>
           </Hidden>
           <Hidden smDown>
             <Link style={{ textDecoration: "none" }} to="/">
-              <Button endIcon={<SearchIcon />} variant="contained">
+              <Button
+                endIcon={<SearchIcon />}
+                variant="contained"
+                onClick={() => localStorage.removeItem("id")}
+              >
                 New Search
               </Button>
             </Link>

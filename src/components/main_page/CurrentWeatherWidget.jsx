@@ -29,7 +29,7 @@ function CurrentWeatherWidget({ stationData }) {
         {stationData.city}, {stationData.country}
       </Typography>
       <Typography color="textSecondary" component="p" variant="caption">
-        {stationData.lat} {stationData.lon}
+        {stationData.lat}, {stationData.lon}
       </Typography>
       <div
         style={{
@@ -41,12 +41,10 @@ function CurrentWeatherWidget({ stationData }) {
         <div>
           <Typography color="textPrimary" component="p" variant="h2">
             {settings.temperature === "c"
-              ? Math.round((stationData.current.temp - 273.15) * 10) / 10 + "°C"
+              ? Math.round(stationData.current.temp - 273.15) + "°C"
               : settings.temperature === "k"
-              ? Math.round(stationData.current.temp * 10) / 10 + "K"
-              : Math.round(((stationData.current.temp * 9) / 5 - 459.67) * 10) /
-                  10 +
-                "°F"}
+              ? Math.round(stationData.current.temp) + "K"
+              : Math.round((stationData.current.temp * 9) / 5 - 459.67) + "°F"}
           </Typography>
           <Typography
             color="textPrimary"

@@ -12,6 +12,7 @@ import {
   HashRouter as Router,
   Switch as RouterSwitch,
   Route,
+  Redirect,
 } from "react-router-dom";
 import Header from "./components/header/Header";
 import {
@@ -21,6 +22,7 @@ import {
   IconButton,
   CircularProgress,
   responsiveFontSizes,
+  useMediaQuery,
 } from "@material-ui/core";
 import Brightness7Icon from "@material-ui/icons/Brightness7";
 import Brightness2Icon from "@material-ui/icons/Brightness2";
@@ -97,10 +99,10 @@ export const SettingsContext = createContext();
 function App() {
   const [API_KEYS, SET_API_KEYS] = useState(null);
   const [settings, setSettings] = useState({
-    temperature: "c",
-    distance: "m",
-    speed: "kph",
-    pressure: "hpa",
+    temperature: JSON.parse(localStorage.getItem("units"))?.temperature ?? "c",
+    distance: JSON.parse(localStorage.getItem("units"))?.distance ?? "m",
+    speed: JSON.parse(localStorage.getItem("units"))?.speed ?? "kph",
+    pressure: JSON.parse(localStorage.getItem("units"))?.pressure ?? "hpa",
   });
 
   useEffect(() => {
@@ -110,20 +112,30 @@ function App() {
   const [theme, setTheme] = useReducer(selectTheme, selectTheme(null, "dark"));
   const [tabSelected, setTabSelected] = useState(null);
 
+  const [redirect, setRedirect] = useState(null);
+
+  useEffect(() => {
+    localStorage.getItem("id") &&
+      setRedirect(<Redirect to={`/${localStorage.getItem("id")}`} />);
+  }, []);
+
+  const breakpointMatches = useMediaQuery(theme.breakpoints.down("xs"));
+
   return (
     <div className="App">
       <ThemeProvider theme={theme}>
         <CssBaseline />
         <Router>
-          <PerfectScrollbar options={{ suppressScrollX: true }}>
-            <div
-              style={{
-                height: "100vh",
-                display: "flex",
-                flexDirection: "column",
-              }}
-            >
-              <SettingsContext.Provider value={[settings, setSettings]}>
+          {redirect}
+          <SettingsContext.Provider value={[settings, setSettings]}>
+            <PerfectScrollbar options={{ suppressScrollX: true }}>
+              <div
+                style={{
+                  display: "flex",
+                  flexDirection: "column",
+                  height: "100vh",
+                }}
+              >
                 <Header />
                 <Route
                   path="/:id"
@@ -159,8 +171,16 @@ function App() {
                     </Suspense>
                   )}
                 </div>
-                <div style={{ width: "100vw", textAlign: "right" }}>
+                <div
+                  style={{
+                    position: "fixed",
+                    bottom: "0%",
+                    width: "100vw",
+                    textAlign: "right",
+                  }}
+                >
                   <IconButton
+                    size={breakpointMatches ? "small" : "medium"}
                     style={{ margin: "0 10px 10px 0" }}
                     onClick={() => {
                       setTheme(
@@ -175,9 +195,9 @@ function App() {
                     )}
                   </IconButton>
                 </div>
-              </SettingsContext.Provider>
-            </div>
-          </PerfectScrollbar>
+              </div>
+            </PerfectScrollbar>
+          </SettingsContext.Provider>
         </Router>
       </ThemeProvider>
     </div>

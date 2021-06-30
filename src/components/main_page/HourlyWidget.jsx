@@ -11,7 +11,7 @@ import {
 } from "@material-ui/core";
 import { Redirect, useRouteMatch } from "react-router-dom";
 import { SettingsContext } from "../../App";
-import { Water } from "@styled-icons/entypo/Water";
+import { CloudRain as Water } from "@styled-icons/boxicons-regular/CloudRain";
 
 function calculateCardAmount(
   firstCard,
@@ -143,12 +143,10 @@ function HourlyWidget({ stationData }) {
                       style={{ margin: `${theme.spacing(1)}px 0px` }}
                     >
                       {settings.temperature === "c"
-                        ? Math.round((entry.temp - 273.15) * 10) / 10 + "°C"
+                        ? Math.round(entry.temp - 273.15) + "°C"
                         : settings.temperature === "k"
-                        ? Math.round(entry.temp * 10) / 10 + "K"
-                        : Math.round(((entry.temp * 9) / 5 - 459.67) * 10) /
-                            10 +
-                          "°F"}
+                        ? Math.round(entry.temp) + "K"
+                        : Math.round((entry.temp * 9) / 5 - 459.67) + "°F"}
                     </Typography>
                     <img
                       style={{
@@ -164,7 +162,7 @@ function HourlyWidget({ stationData }) {
                       src={`https://openweathermap.org/img/wn/${entry.weather[0].icon}@2x.png`}
                     />
                     <div style={{ display: "flex", alignItems: "center" }}>
-                      <Water width={15} />
+                      <Water width={20} />
                       <Typography variant="h6" component="p">
                         {"\u00A0"}
                         {Math.round(entry.pop * 100)}%

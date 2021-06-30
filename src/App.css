@@ -12,3 +12,7 @@
 .mapboxgl-ctrl-logo {
   display: none !important;
 }
+
+.ps__rail-y {
+  z-index: 10000;
+}

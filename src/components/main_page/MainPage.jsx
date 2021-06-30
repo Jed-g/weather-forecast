@@ -19,7 +19,8 @@ async function fetchUsingOneCallAPI(id, setStationData, API_KEY, history) {
     return;
   }
 
-  const currentWeatherDataAPIResponseJSON = await currentWeatherDataAPIResponse.json();
+  const currentWeatherDataAPIResponseJSON =
+    await currentWeatherDataAPIResponse.json();
 
   const oneCallAPIResponseJSON = await (
     await fetch(
@@ -32,6 +33,8 @@ async function fetchUsingOneCallAPI(id, setStationData, API_KEY, history) {
     city: currentWeatherDataAPIResponseJSON.name,
     country: currentWeatherDataAPIResponseJSON.sys.country,
   });
+
+  localStorage.setItem("id", id);
 }
 
 function MainPage({ match, setTabSelected }) {
@@ -49,65 +52,68 @@ function MainPage({ match, setTabSelected }) {
   return (
     <>
       {stationData && (
-        <>
+        <Grid
+          justify="center"
+          container
+          style={{ width: "100%", height: "100%", margin: "40px 0 20px" }}
+        >
           <Grid
-            justify="center"
             container
-            style={{ width: "100%", height: "100%", margin: "40px 0 20px" }}
+            item
+            xs={12}
+            lg={8}
+            alignItems="flex-start"
+            alignContent="flex-start"
+            spacing={4}
           >
-            <Grid
-              container
-              item
-              xs={12}
-              lg={8}
-              alignItems="flex-start"
-              alignContent="flex-start"
-              spacing={4}
-            >
-              <Grid item md={8} xs={12}>
-                <RouterSwitch>
-                  <Route
-                    exact
-                    path={`/${match.params.id}`}
-                    render={(props) => (
-                      <Today
-                        setTabSelected={setTabSelected}
-                        {...props}
-                        stationData={stationData}
-                      />
-                    )}
-                  />
-                  <Route
-                    exact
-                    path={`/${match.params.id}/hourly`}
-                    render={(props) => (
-                      <Hourly
-                        setTabSelected={setTabSelected}
-                        {...props}
-                        stationData={stationData}
-                      />
-                    )}
-                  />
-                  <Route
-                    exact
-                    path={`/${match.params.id}/daily`}
-                    render={(props) => (
-                      <Daily
-                        setTabSelected={setTabSelected}
-                        {...props}
-                        stationData={stationData}
-                      />
-                    )}
-                  />
-                  <Route path="*" render={() => history.push("/")} />
-                </RouterSwitch>
-              </Grid>
-              <Grid item md={4} xs={12}>
-                <Map coords={{ lat: stationData.lat, lon: stationData.lon }} />
-              </Grid>
+            <Grid item md={8} xs={12}>
+              <RouterSwitch>
+                <Route
+                  exact
+                  path={`/${match.params.id}`}
+                  render={(props) => (
+                    <Today
+                      setTabSelected={setTabSelected}
+                      {...props}
+                      stationData={stationData}
+                    />
+                  )}
+                />
+                <Route
+                  exact
+                  path={`/${match.params.id}/hourly`}
+                  render={(props) => (
+                    <Hourly
+                      setTabSelected={setTabSelected}
+                      {...props}
+                      stationData={stationData}
+                    />
+                  )}
+                />
+                <Route
+                  exact
+                  path={`/${match.params.id}/daily`}
+                  render={(props) => (
+                    <Daily
+                      setTabSelected={setTabSelected}
+                      {...props}
+                      stationData={stationData}
+                    />
+                  )}
+                />
+                <Route
+                  path="*"
+                  render={() => {
+                    history.push("/" + match.params.id);
+                  }}
+                />
+              </RouterSwitch>
+            </Grid>
+            <Grid item md={4} xs={12}>
+              <Map coords={{ lat: stationData.lat, lon: stationData.lon }} />
             </Grid>
           </Grid>
-        </>
+        </Grid>
       )}
       {stationData && (
         <Snackbar
@@ -126,7 +132,19 @@ function MainPage({ match, setTabSelected }) {
           </MuiAlert>
         </Snackbar>
       )}
-      {!stationData ? <CircularProgress /> : null}
+      {!stationData ? (
+        <div
+          style={{
+            display: "flex",
+            justifyContent: "center",
+            alignItems: "center",
+            height: "100%",
+            width: "100%",
+          }}
+        >
+          <CircularProgress />
+        </div>
+      ) : null}
     </>
   );
 }

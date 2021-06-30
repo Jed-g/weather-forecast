@@ -17,7 +17,7 @@ import { Sun } from "@styled-icons/heroicons-outline/Sun";
 import { Water } from "@styled-icons/ionicons-outline/Water";
 import { Visibility } from "@styled-icons/material-outlined/Visibility";
 import { ArrowsCompress } from "@styled-icons/foundation/ArrowsCompress";
-import { Water as Rain } from "@styled-icons/entypo/Water";
+import { CloudRain as Rain } from "@styled-icons/boxicons-regular/CloudRain";
 
 const useStyles = makeStyles((theme) => ({
   listItem: {
@@ -95,7 +95,7 @@ function DetailList({ stationData }) {
         <ListItem className={classes.listItem}>
           <ListItemText>
             <div style={{ display: "flex", alignItems: "center" }}>
-              <Rain width={22} />
+              <Rain width={25} style={{ marginLeft: -3 }} />
               <Typography>{"\u00A0\u00A0"}Precipitation</Typography>
             </div>
           </ListItemText>

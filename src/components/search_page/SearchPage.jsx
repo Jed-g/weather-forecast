@@ -19,9 +19,8 @@ import SearchImage from "./SearchImage";
 const CitySearchField = lazy(() => import("./CitySearchField"));
 
 function SearchPage() {
-  const [isSearchTypeCitySelected, setIsSearchTypeCitySelected] = useState(
-    true
-  );
+  const [isSearchTypeCitySelected, setIsSearchTypeCitySelected] =
+    useState(true);
 
   const title = (
     <Box display="flex" alignItems="center" justifyContent="center">
@@ -34,10 +33,8 @@ function SearchPage() {
 
   const [cityNameInField, setCityNameInField] = useState("");
   const [listOfSuggestions, setListOfSuggestions] = useState([]);
-  const [
-    suggestionCurrentlySelected,
-    setSuggestionCurrentlySelected,
-  ] = useState(0);
+  const [suggestionCurrentlySelected, setSuggestionCurrentlySelected] =
+    useState(0);
   const executingAutocompleteLookup = useRef(false);
 
   const [geoCoordsInFields, setGeoCoordsInFields] = useState({
@@ -49,8 +46,12 @@ function SearchPage() {
   const [errorStateGeoCoordField, setErrorStateGeoCoordField] = useState(false);
 
   return (
-    <Grid container style={{ margin: "40px 0 20px" }}>
-      <Grid item xs={1} sm={3} md={4}></Grid>
+    <Grid
+      justify="center"
+      alignItems="center"
+      container
+      style={{ margin: "40px 0 20px" }}
+    >
       <Grid item xs={10} sm={6} md={4}>
         <Card raised>
           <SearchImage />
@@ -137,7 +138,6 @@ function SearchPage() {
           </form>
         </Card>
       </Grid>
-      <Grid item xs={1} sm={3} md={4}></Grid>
     </Grid>
   );
 }

@@ -124,12 +124,10 @@ function Hourly({ stationData, setTabSelected }) {
                     </Typography>
                     <Typography className={classes.headerLarge}>
                       {settings.temperature === "c"
-                        ? Math.round((entry.temp - 273.15) * 10) / 10 + "°C"
+                        ? Math.round(entry.temp - 273.15) + "°C"
                         : settings.temperature === "k"
-                        ? Math.round(entry.temp * 10) / 10 + "K"
-                        : Math.round(((entry.temp * 9) / 5 - 459.67) * 10) /
-                            10 +
-                          "°F"}
+                        ? Math.round(entry.temp) + "K"
+                        : Math.round((entry.temp * 9) / 5 - 459.67) + "°F"}
                     </Typography>
                   </div>
                   <div
@@ -185,16 +183,12 @@ function Hourly({ stationData, setTabSelected }) {
                           parameterName="Feels Like"
                           parameterValue={
                             settings.temperature === "c"
-                              ? Math.round((entry.feels_like - 273.15) * 10) /
-                                  10 +
-                                "°C"
+                              ? Math.round(entry.feels_like - 273.15) + "°C"
                               : settings.temperature === "k"
-                              ? Math.round(entry.feels_like * 10) / 10 + "K"
+                              ? Math.round(entry.feels_like) + "K"
                               : Math.round(
-                                  ((entry.feels_like * 9) / 5 - 459.67) * 10
-                                ) /
-                                  10 +
-                                "°F"
+                                  (entry.feels_like * 9) / 5 - 459.67
+                                ) + "°F"
                           }
                         />
                         <DetailBox

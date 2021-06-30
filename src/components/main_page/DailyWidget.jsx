@@ -12,7 +12,7 @@ import {
 } from "@material-ui/core";
 import { Redirect, useRouteMatch } from "react-router-dom";
 import { SettingsContext } from "../../App";
-import { Water } from "@styled-icons/entypo/Water";
+import { CloudRain as Water } from "@styled-icons/boxicons-regular/CloudRain";
 
 const useStyles = makeStyles((theme) => ({
   medium: {
@@ -192,7 +192,7 @@ function DailyWidget({ stationData }) {
                       src={`https://openweathermap.org/img/wn/${entry.weather[0].icon}@2x.png`}
                     />
                     <div style={{ display: "flex", alignItems: "center" }}>
-                      <Water width={15} />
+                      <Water width={20} />
                       <Typography variant="h6" component="p">
                         {"\u00A0"}
                         {Math.round(entry.pop * 100)}%

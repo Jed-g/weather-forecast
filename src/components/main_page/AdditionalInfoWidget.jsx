@@ -39,16 +39,12 @@ function AdditionalInfoWidget({ stationData }) {
           >
             <Typography variant="h3" component="p">
               {settings.temperature === "c"
-                ? Math.round((stationData.current.feels_like - 273.15) * 10) /
-                    10 +
-                  "°C"
+                ? Math.round(stationData.current.feels_like - 273.15) + "°C"
                 : settings.temperature === "k"
-                ? Math.round(stationData.current.feels_like * 10) / 10 + "K"
+                ? Math.round(stationData.current.feels_like) + "K"
                 : Math.round(
-                    ((stationData.current.feels_like * 9) / 5 - 459.67) * 10
-                  ) /
-                    10 +
-                  "°F"}
+                    (stationData.current.feels_like * 9) / 5 - 459.67
+                  ) + "°F"}
             </Typography>
             <Typography color="textSecondary" variant="h6" component="p">
               Feels Like
