@@ -1,4 +1,4 @@
-import React, { useState, useRef, lazy, Suspense } from "react";
+import React, { useState, Suspense } from "react";
 import {
   Card,
   CardContent,
@@ -15,8 +15,7 @@ import DropdownMenu from "./DropdownMenu";
 import ButtonMenu from "./ButtonMenu";
 import SearchButton from "./SearchButton";
 import SearchImage from "./SearchImage";
-
-const CitySearchField = lazy(() => import("./CitySearchField"));
+import CitySearchField from "./CitySearchField";
 
 function SearchPage() {
   const [isSearchTypeCitySelected, setIsSearchTypeCitySelected] =
@@ -35,7 +34,6 @@ function SearchPage() {
   const [listOfSuggestions, setListOfSuggestions] = useState([]);
   const [suggestionCurrentlySelected, setSuggestionCurrentlySelected] =
     useState(0);
-  const executingAutocompleteLookup = useRef(false);
 
   const [geoCoordsInFields, setGeoCoordsInFields] = useState({
     latitude: "",
@@ -86,9 +84,6 @@ function SearchPage() {
                         setListOfSuggestions={setListOfSuggestions}
                         cityNameInField={cityNameInField}
                         setCityNameInField={setCityNameInField}
-                        executingAutocompleteLookup={
-                          executingAutocompleteLookup
-                        }
                         suggestionCurrentlySelected={
                           suggestionCurrentlySelected
                         }
@@ -130,7 +125,6 @@ function SearchPage() {
                   setErrorStateCityNameField={setErrorStateCityNameField}
                   setErrorStateGeoCoordField={setErrorStateGeoCoordField}
                   geoCoordsInFields={geoCoordsInFields}
-                  executingAutocompleteLookup={executingAutocompleteLookup}
                   suggestionCurrentlySelected={suggestionCurrentlySelected}
                 />
               </Grid>

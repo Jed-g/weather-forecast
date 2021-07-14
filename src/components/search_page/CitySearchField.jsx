@@ -1,4 +1,4 @@
-import React, { useRef, useEffect, useState } from "react";
+import React, { useRef, useEffect, useState, useContext } from "react";
 import { Redirect } from "react-router-dom";
 import {
   TextField,
@@ -14,108 +14,34 @@ import {
   Divider,
 } from "@material-ui/core";
 import ClearIcon from "@material-ui/icons/Clear";
-import diacritics from "diacritics";
+import axios from "axios";
+import { ApiKeysContext } from "../../App";
+import Coordinates from "coordinate-parser";
 
-import CITY_LIST from "../../api/city.list.min.json";
+async function handleCityToGeoCoords(cityObject, API_KEYS, setRedirect) {
+  let response = await fetch(
+    `https://geocoder.ls.hereapi.com/6.2/geocode.json?locationid=${cityObject.locationId}&jsonattributes=1&gen=9&apiKey=${API_KEYS.API_KEY_HERE}`
+  );
+  let data = await response.json();
+  const coords = data.response.view[0].result[0].location.displayPosition;
 
-const removeDiacritics = diacritics.remove;
+  let coordinates;
+  try {
+    coordinates = new Coordinates(`${coords.latitude}, ${coords.longitude}`);
+  } catch (err) {}
 
-function calculateClosestMatches(
-  bestFitArray,
-  cityList,
-  cityName,
-  howManyMax,
-  steps,
-  iteration,
-  setListOfSuggestions,
-  breakBetweenIterationsInMs,
-  cancelExec,
-  executingAutocompleteLookup
-) {
-  cityList
-    .slice(
-      Math.floor((iteration * cityList.length) / steps),
-      Math.floor(((iteration + 1) * cityList.length) / steps)
-    )
-    .forEach((city) => {
-      let min = Infinity;
-      const posOfCity = city.name.toLowerCase().search(cityName.toLowerCase());
-      if (posOfCity !== -1) {
-        if (city.name.length - cityName.length - 1 / (1 + posOfCity) < min) {
-          min = city.name.length - cityName.length - 1 / (1 + posOfCity);
-        }
-      }
+  response = await fetch(
+    `https://api.openweathermap.org/data/2.5/weather?lat=${coordinates.getLatitude()}&lon=${coordinates.getLongitude()}&appid=${
+      API_KEYS.API_KEY_OPENWEATHERMAP
+    }`
+  );
 
-      const posOfCityWithoutDiacritics = removeDiacritics(city.name)
-        .toLowerCase()
-        .search(removeDiacritics(cityName).toLowerCase());
-      if (posOfCityWithoutDiacritics !== -1) {
-        if (
-          (city.name.length -
-            cityName.length -
-            1 / (1 + posOfCityWithoutDiacritics)) *
-            1.25 <
-          min
-        ) {
-          min =
-            (city.name.length -
-              cityName.length -
-              1 / (1 + posOfCityWithoutDiacritics)) *
-            1.25;
-        }
-      }
-
-      if (min !== Infinity) {
-        let indexToInsertAt = 0;
-        for (let i = 0; i < bestFitArray.length; i++) {
-          if (min >= bestFitArray[i].fitValue) {
-            indexToInsertAt++;
-          }
-        }
-        bestFitArray.splice(indexToInsertAt, 0, {
-          fitValue: min,
-          city: city,
-        });
-      }
-
-      if (bestFitArray.length > howManyMax) {
-        let max = -Infinity;
-        let indexToDelete = null;
-        bestFitArray.forEach((cityObject, index) => {
-          if (cityObject.fitValue > -0.5 && cityObject.fitValue >= max) {
-            max = cityObject.fitValue;
-            indexToDelete = index;
-          }
-        });
-        indexToDelete && bestFitArray.splice(indexToDelete, 1);
-      }
-    });
-  if (!cancelExec.current) {
-    if (iteration < steps - 1) {
-      setTimeout(
-        () =>
-          calculateClosestMatches(
-            bestFitArray,
-            cityList,
-            cityName,
-            howManyMax,
-            steps,
-            iteration + 1,
-            setListOfSuggestions,
-            breakBetweenIterationsInMs,
-            cancelExec,
-            executingAutocompleteLookup
-          ),
-        breakBetweenIterationsInMs
-      );
-    } else {
-      executingAutocompleteLookup.current = false;
-      if (cityName) {
-        setListOfSuggestions(bestFitArray);
-      } else {
-        setListOfSuggestions([]);
-      }
-    }
+  data = await response.json();
+  const verifyResponseById = await fetch(
+    `https://api.openweathermap.org/data/2.5/weather?id=${data.id}&appid=${API_KEYS.API_KEY_OPENWEATHERMAP}`
+  );
+  if (verifyResponseById.ok) {
+    setRedirect(<Redirect push to={`/${data.id}`} />);
   }
 }
 
@@ -126,7 +52,6 @@ function CitySearchField({
   setErrorStateCityNameField,
   cityNameInField,
   setCityNameInField,
-  executingAutocompleteLookup,
   suggestionCurrentlySelected,
   setSuggestionCurrentlySelected,
 }) {
@@ -137,30 +62,64 @@ function CitySearchField({
 
   useEffect(() => setSuggestionCurrentlySelected(0), []);
 
-  const cancelExec = useRef(false);
+  const sourceAutocompleteLookup = useRef();
+
+  const API_KEYS = useContext(ApiKeysContext);
+
+  const [redirect, setRedirect] = useState(null);
+  const [anchorElProgress, setAnchorElProgress] = useState(null);
+  const openProgress = Boolean(anchorElProgress);
+  const [anchorElList, setAnchorElList] = useState(null);
+  const openList = Boolean(anchorElList);
 
   useEffect(() => {
-    const breakBetweenIterationsInMs = 5;
-    cancelExec.current = executingAutocompleteLookup.current;
-    if (CITY_LIST) {
-      setTimeout(() => {
-        executingAutocompleteLookup.current = true;
-        setListOfSuggestions((prev) => prev);
-        cancelExec.current = false;
-        calculateClosestMatches(
-          [],
-          CITY_LIST,
-          cityNameInField.replace(/[#^$|/\\{}()?*+.[\]]/g, ""),
-          5,
-          30,
-          0,
-          setListOfSuggestions,
-          breakBetweenIterationsInMs,
-          cancelExec,
-          executingAutocompleteLookup
-        );
-      }, 2 * breakBetweenIterationsInMs);
+    if (sourceAutocompleteLookup.current?.cancel) {
+      sourceAutocompleteLookup.current.cancel();
     }
+    async function fetchSuggestionList(cityNameInField) {
+      sourceAutocompleteLookup.current = axios.CancelToken.source();
+      const cancelToken = sourceAutocompleteLookup.current.token;
+      const cityNameInFieldFiltered = cityNameInField.replace(
+        /[#^$|/\\{}()?*+.[\]]/g,
+        ""
+      );
+      const req = await axios
+        .get(
+          `https://autocomplete.geocoder.ls.hereapi.com/6.2/suggest.json?query=${cityNameInFieldFiltered}&apiKey=${API_KEYS.API_KEY_HERE}`,
+          {
+            cancelToken,
+          }
+        )
+        .catch((err) => err);
+
+      const suggestions = req?.data?.suggestions ?? [];
+      console.log(suggestions);
+      for (let i = 0; i < suggestions.length - 1; i++) {
+        for (let j = i + 1; j < suggestions.length; j++) {
+          if (
+            suggestions[i]?.address?.county ===
+              suggestions[j]?.address?.county &&
+            suggestions[i]?.address?.county !== undefined
+          ) {
+            if (suggestions[i]?.label?.length < suggestions[j]?.label?.length) {
+              suggestions[j] = null;
+            } else {
+              suggestions[i] = null;
+            }
+          }
+        }
+      }
+
+      const filteredSuggestions = suggestions.filter(
+        (suggestion) => suggestion !== null
+      );
+
+      console.log(filteredSuggestions);
+      setListOfSuggestions(filteredSuggestions);
+      filteredSuggestions?.length === 0 && setAnchorElProgress(null);
+    }
+
+    fetchSuggestionList(cityNameInField);
   }, [cityNameInField]);
 
   const textField = useRef();
@@ -235,14 +194,15 @@ function CitySearchField({
     }
   };
 
-  const [redirect, setRedirect] = useState(null);
-  const [anchorEl, setAnchorEl] = useState(null);
-  const open = Boolean(anchorEl);
-
   return (
     <>
       {redirect}
-      <ClickAwayListener onClickAway={() => setAnchorEl(null)}>
+      <ClickAwayListener
+        onClickAway={() => {
+          setAnchorElProgress(null);
+          setAnchorElList(null);
+        }}
+      >
         <div>
           <TextField
             error={errorStateCityNameField}
@@ -253,22 +213,24 @@ function CitySearchField({
               setSuggestionCurrentlySelected(0);
               setCityNameInField(e.target.value);
               setErrorStateCityNameField(false);
-              setAnchorEl(textField.current);
+              cityNameInField && setAnchorElProgress(textField.current);
+              setAnchorElList(textField.current);
             }}
             variant="outlined"
             inputRef={textFieldInner}
             fullWidth
             label="City Name"
             onClick={(e) => {
-              setAnchorEl(e.currentTarget);
+              cityNameInField && setAnchorElProgress(e.currentTarget);
+              setAnchorElList(e.currentTarget);
               setErrorStateCityNameField(false);
             }}
           />
-          {executingAutocompleteLookup.current && (
+          {
             <Popper
               style={{ zIndex: 1500, width: textFieldWidth }}
-              open={open}
-              anchorEl={anchorEl}
+              open={openProgress}
+              anchorEl={anchorElProgress}
               role={undefined}
               transition
               disablePortal
@@ -294,60 +256,53 @@ function CitySearchField({
                 </Grow>
               )}
             </Popper>
+          }
+          {listOfSuggestions.length !== 0 && (
+            <Popper
+              style={{ zIndex: 1500, width: textFieldWidth }}
+              open={openList}
+              anchorEl={anchorElList}
+              role={undefined}
+              transition
+              disablePortal
+            >
+              {({ TransitionProps, placement }) => (
+                <Grow
+                  {...TransitionProps}
+                  style={{
+                    transformOrigin:
+                      placement === "bottom" ? "center top" : "center bottom",
+                  }}
+                >
+                  <Paper>
+                    <MenuList>
+                      {listOfSuggestions.map((cityObject, index) => {
+                        return (
+                          <div key={cityObject.locationId}>
+                            <MenuItem
+                              onClick={() =>
+                                handleCityToGeoCoords(
+                                  cityObject,
+                                  API_KEYS,
+                                  setRedirect
+                                )
+                              }
+                              selected={index === suggestionCurrentlySelected}
+                            >
+                              {cityObject.label}
+                            </MenuItem>
+                            {listOfSuggestions.length - 1 === index || (
+                              <Divider />
+                            )}
+                          </div>
+                        );
+                      })}
+                    </MenuList>
+                  </Paper>
+                </Grow>
+              )}
+            </Popper>
           )}
-          {!executingAutocompleteLookup.current &&
-            listOfSuggestions.length !== 0 && (
-              <Popper
-                style={{ zIndex: 1500, width: textFieldWidth }}
-                open={open}
-                anchorEl={anchorEl}
-                role={undefined}
-                transition
-                disablePortal
-              >
-                {({ TransitionProps, placement }) => (
-                  <Grow
-                    {...TransitionProps}
-                    style={{
-                      transformOrigin:
-                        placement === "bottom" ? "center top" : "center bottom",
-                    }}
-                  >
-                    <Paper>
-                      <MenuList>
-                        {listOfSuggestions.map((cityObject, index) => {
-                          return (
-                            <div key={cityObject.city.id}>
-                              <MenuItem
-                                onClick={() =>
-                                  executingAutocompleteLookup.current ||
-                                  setRedirect(
-                                    <Redirect
-                                      push
-                                      to={`/${cityObject.city.id}`}
-                                    />
-                                  )
-                                }
-                                selected={index === suggestionCurrentlySelected}
-                              >
-                                {cityObject.city.name}
-                                {cityObject.city.state &&
-                                  `, ${cityObject.city.state}`}
-                                {cityObject.city.country &&
-                                  `, ${cityObject.city.country}`}
-                              </MenuItem>
-                              {listOfSuggestions.length - 1 === index || (
-                                <Divider />
-                              )}
-                            </div>
-                          );
-                        })}
-                      </MenuList>
-                    </Paper>
-                  </Grow>
-                )}
-              </Popper>
-            )}
         </div>
       </ClickAwayListener>
     </>

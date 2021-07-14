@@ -5,23 +5,49 @@ import ExploreIcon from "@material-ui/icons/Explore";
 import Coordinates from "coordinate-parser";
 import { ApiKeysContext } from "../../App";
 
+async function handleCityToGeoCoords(cityObject, API_KEYS, setRedirect) {
+  let response = await fetch(
+    `https://geocoder.ls.hereapi.com/6.2/geocode.json?locationid=${cityObject.locationId}&jsonattributes=1&gen=9&apiKey=${API_KEYS.API_KEY_HERE}`
+  );
+  let data = await response.json();
+  const coords = data.response.view[0].result[0].location.displayPosition;
+
+  let coordinates;
+  try {
+    coordinates = new Coordinates(`${coords.latitude}, ${coords.longitude}`);
+  } catch (err) {}
+
+  response = await fetch(
+    `https://api.openweathermap.org/data/2.5/weather?lat=${coordinates.getLatitude()}&lon=${coordinates.getLongitude()}&appid=${
+      API_KEYS.API_KEY_OPENWEATHERMAP
+    }`
+  );
+
+  data = await response.json();
+  const verifyResponseById = await fetch(
+    `https://api.openweathermap.org/data/2.5/weather?id=${data.id}&appid=${API_KEYS.API_KEY_OPENWEATHERMAP}`
+  );
+  if (verifyResponseById.ok) {
+    setRedirect(<Redirect push to={`/${data.id}`} />);
+  }
+}
+
 function handleClick({
   isSearchTypeCitySelected,
   listOfSuggestionsPersist,
   setErrorStateCityNameField,
   setErrorStateGeoCoordField,
   geoCoordsInFields,
-  API_KEY,
+  API_KEYS,
   setRedirect,
   suggestionCurrentlySelected,
 }) {
   if (isSearchTypeCitySelected) {
     if (listOfSuggestionsPersist.current.length !== 0) {
-      setRedirect(
-        <Redirect
-          push
-          to={`/${listOfSuggestionsPersist.current[suggestionCurrentlySelected].city.id}`}
-        />
+      handleCityToGeoCoords(
+        listOfSuggestionsPersist.current[suggestionCurrentlySelected],
+        API_KEYS,
+        setRedirect
       );
     } else {
       setErrorStateCityNameField(true);
@@ -30,7 +56,7 @@ function handleClick({
     handleGeoCoords({
       geoCoordsInFields,
       setErrorStateGeoCoordField,
-      API_KEY,
+      API_KEY: API_KEYS.API_KEY_OPENWEATHERMAP,
       setRedirect,
     });
   }
@@ -98,9 +124,7 @@ function SearchButton(props) {
     const eventListenerFunction = function (e) {
       document.removeEventListener("keydown", eventListenerFunction);
       if (e.key === "Enter") {
-        !props.executingAutocompleteLookup.current &&
-          buttonRef.current &&
-          buttonRef.current.click();
+        buttonRef.current && buttonRef.current.click();
       }
     };
     document.addEventListener("keydown", eventListenerFunction);
@@ -120,8 +144,7 @@ function SearchButton(props) {
     };
   }, []);
 
-  const API_KEY = useContext(ApiKeysContext).API_KEY_OPENWEATHERMAP;
-
+  const API_KEYS = useContext(ApiKeysContext);
   return (
     <>
       {redirect}
@@ -134,7 +157,7 @@ function SearchButton(props) {
         onClick={() =>
           handleClick({
             ...props,
-            API_KEY,
+            API_KEYS,
             setRedirect,
             listOfSuggestionsPersist,
           })

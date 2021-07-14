@@ -26,7 +26,11 @@ import {
 } from "@material-ui/core";
 import Brightness7Icon from "@material-ui/icons/Brightness7";
 import Brightness2Icon from "@material-ui/icons/Brightness2";
-import { API_KEY_OPENWEATHERMAP, API_KEY_MAPBOX } from "./api/ENV.json";
+import {
+  API_KEY_OPENWEATHERMAP,
+  API_KEY_MAPBOX,
+  API_KEY_HERE,
+} from "./api/ENV.json";
 import Tabs from "./components/main_page/Tabs";
 import "react-perfect-scrollbar/dist/css/styles.css";
 import PerfectScrollbar from "react-perfect-scrollbar";
@@ -90,7 +94,7 @@ function selectTheme(state, theme) {
 }
 
 function initialLoad(SET_API_KEY) {
-  SET_API_KEY({ API_KEY_OPENWEATHERMAP, API_KEY_MAPBOX });
+  SET_API_KEY({ API_KEY_OPENWEATHERMAP, API_KEY_MAPBOX, API_KEY_HERE });
 }
 
 export const ApiKeysContext = createContext();
