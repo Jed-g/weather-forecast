@@ -92,10 +92,12 @@ function Hourly({ stationData, setTabSelected }) {
             hour: "numeric",
             minute: "numeric",
             hourCycle: "h23",
+            timeZone: "UTC",
           });
 
           const day = date.toLocaleString("en-GB", {
             weekday: "long",
+            timeZone: "UTC",
           });
 
           let dayChange = !(prevDay === day);
@@ -111,7 +113,11 @@ function Hourly({ stationData, setTabSelected }) {
             <React.Fragment key={index}>
               {dayChange && (
                 <Typography
-                  style={{ margin: theme.spacing(2) }}
+                  style={{
+                    margin: `${theme.spacing(2)}px ${
+                      breakpointMatches ? 0 : theme.spacing(2)
+                    }px`,
+                  }}
                   component="p"
                   variant="h6"
                 >

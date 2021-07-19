@@ -14,6 +14,7 @@ function CurrentWeatherWidget({ stationData }) {
     hour: "numeric",
     minute: "numeric",
     hourCycle: "h23",
+    timeZone: "UTC",
   });
 
   const utcOffset = stationData.timezone_offset / 3600;
