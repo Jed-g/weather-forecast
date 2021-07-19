@@ -13,6 +13,7 @@ import {
 import ExpandMoreIcon from "@material-ui/icons/ExpandMore";
 import DetailBox from "./DetailBox";
 import { SettingsContext } from "../../App";
+import { CloudRain as Water } from "@styled-icons/boxicons-regular/CloudRain";
 
 const useStyles = makeStyles((theme) => ({
   root: {
@@ -54,7 +55,7 @@ const useStyles = makeStyles((theme) => ({
   },
   summaryRoot: {
     [theme.breakpoints.down("xs")]: {
-      padding: "0 8px",
+      padding: "0",
     },
   },
   feelsLikeName: {
@@ -62,6 +63,10 @@ const useStyles = makeStyles((theme) => ({
   },
   feelsLikeValueDay: {
     color: theme.palette.text.primary,
+  },
+  accordionExpandButton: {
+    padding: 4,
+    marginRight: -4,
   },
 }));
 
@@ -96,7 +101,7 @@ function Daily({ stationData, setTabSelected }) {
           );
 
           const day = date.toLocaleString("en-GB", {
-            weekday: breakpointMatches ? "short" : "long",
+            weekday: "short",
             day: "2-digit",
           });
 
@@ -112,6 +117,7 @@ function Daily({ stationData, setTabSelected }) {
                 classes={{
                   content: classes.summaryContent,
                   root: classes.summaryRoot,
+                  expandIcon: classes.accordionExpandButton,
                 }}
                 expandIcon={<ExpandMoreIcon />}
               >
@@ -119,13 +125,15 @@ function Daily({ stationData, setTabSelected }) {
                   style={{
                     display: "flex",
                     justifyContent: "space-between",
-                    width: breakpointMatches ? "40vw" : "min(35vw, 275px)",
+                    width: breakpointMatches
+                      ? "max(142px, 35vw)"
+                      : "max(12vw, 150px)",
                     alignItems: "center",
                   }}
                 >
                   <div
                     style={{
-                      width: breakpointMatches ? 60 : 120,
+                      width: breakpointMatches ? 55 : 80,
                       flexShrink: "0",
                     }}
                   >
@@ -135,8 +143,8 @@ function Daily({ stationData, setTabSelected }) {
                   </div>
                   <div
                     style={{
-                      marginLeft: breakpointMatches ? "4vw" : 25,
-                      width: 100,
+                      marginLeft: breakpointMatches ? "1vw" : 10,
+                      width: breakpointMatches ? 80 : 100,
                       flexShrink: "0",
                       display: "flex",
                       alignItems: "center",
@@ -166,29 +174,56 @@ function Daily({ stationData, setTabSelected }) {
                   style={{
                     display: "flex",
                     alignItems: "center",
-                    flexBasis: breakpointMatches ? "16.66%" : "40%",
+                    justifyContent: "space-between",
+                    flexBasis: breakpointMatches ? "16.66%" : "35%",
                   }}
                 >
-                  <img
+                  <div
                     style={{
-                      height: 32,
-                      width: 50,
-                      objectFit: "cover",
-                      backgroundColor:
-                        theme.palette.type === "dark" ? "#909090" : "#DCDCDC",
-                      borderRadius: 8,
+                      display: "flex",
+                      alignItems: "center",
+                      marginRight: breakpointMatches ? "1vw" : 12,
                     }}
-                    alt="icon"
-                    src={`https://openweathermap.org/img/wn/${entry.weather[0].icon}@2x.png`}
-                  />
-                  {breakpointMatches || (
+                  >
+                    <Water width={20} style={{ marginRight: -2 }} />
                     <Typography
-                      style={{ textTransform: "capitalize", marginLeft: 10 }}
-                      className={classes.header}
+                      className={classes.headerMedium}
+                      variant="h6"
+                      component="p"
                     >
-                      {entry.weather[0].description}
+                      {"\u00A0"}
+                      {Math.round(entry.pop * 100)}%
                     </Typography>
-                  )}
+                  </div>
+                  <div
+                    style={{
+                      display: "flex",
+                      alignItems: "center",
+                      width: breakpointMatches ? "16vw" : "min(25vw, 200px)",
+                    }}
+                  >
+                    <img
+                      style={{
+                        flexShrink: "0",
+                        height: 32,
+                        width: 50,
+                        objectFit: "cover",
+                        backgroundColor:
+                          theme.palette.type === "dark" ? "#909090" : "#DCDCDC",
+                        borderRadius: 8,
+                      }}
+                      alt="icon"
+                      src={`https://openweathermap.org/img/wn/${entry.weather[0].icon}@2x.png`}
+                    />
+                    {breakpointMatches || (
+                      <Typography
+                        style={{ textTransform: "capitalize", marginLeft: 10 }}
+                        className={classes.header}
+                      >
+                        {entry.weather[0].description}
+                      </Typography>
+                    )}
+                  </div>
                 </div>
               </AccordionSummary>
               <AccordionDetails>

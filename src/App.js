@@ -179,7 +179,8 @@ function App() {
                   style={{
                     position: "fixed",
                     bottom: "0%",
-                    width: "100vw",
+                    right: "0%",
+                    width: "80px",
                     textAlign: "right",
                   }}
                 >

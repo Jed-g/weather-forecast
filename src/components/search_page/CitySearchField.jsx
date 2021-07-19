@@ -93,7 +93,7 @@ function CitySearchField({
         .catch((err) => err);
 
       const suggestions = req?.data?.suggestions ?? [];
-      console.log(suggestions);
+
       for (let i = 0; i < suggestions.length - 1; i++) {
         for (let j = i + 1; j < suggestions.length; j++) {
           if (
@@ -114,9 +114,8 @@ function CitySearchField({
         (suggestion) => suggestion !== null
       );
 
-      console.log(filteredSuggestions);
       setListOfSuggestions(filteredSuggestions);
-      filteredSuggestions?.length === 0 && setAnchorElProgress(null);
+      setAnchorElProgress(null);
     }
 
     fetchSuggestionList(cityNameInField);

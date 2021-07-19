@@ -54,7 +54,11 @@ function SearchPage() {
         <Card raised>
           <SearchImage />
           <CardHeader disableTypography title={title} />
-          <form autoComplete="off" spellCheck="false">
+          <form
+            onSubmit={(e) => e.preventDefault()}
+            autoComplete="off"
+            spellCheck="false"
+          >
             <CardContent>
               <Grid container spacing={2}>
                 <Grid item xs={12}>
