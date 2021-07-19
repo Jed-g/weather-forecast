@@ -103,6 +103,7 @@ function Daily({ stationData, setTabSelected }) {
           const day = date.toLocaleString("en-GB", {
             weekday: "short",
             day: "2-digit",
+            timeZone: "UTC",
           });
 
           return (
