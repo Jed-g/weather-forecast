@@ -111,6 +111,7 @@ function SunriseSunset({
     hour: "numeric",
     minute: "numeric",
     hourCycle: "h23",
+    timeZone: "UTC",
   });
 
   const dateSunset = new Date((sunsetInUnix + timezone_offset) * 1000);
@@ -118,6 +119,7 @@ function SunriseSunset({
     hour: "numeric",
     minute: "numeric",
     hourCycle: "h23",
+    timeZone: "UTC",
   });
 
   return (
