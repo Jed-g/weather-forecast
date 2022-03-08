@@ -41,7 +41,7 @@ to install the project dependencies
 5. Change the API keys in **src\api\ENV.json**. The keys provided are for demo purposes and will stop working once the number of requests exceeds a certain threshold.  
 **Note!** The API keys are bundled into the final deployment package and so are visible to the user. This is intentional and necessary since there is no back-end layer
 7. To run the application in a development environment, run  
-`npm run dev`
+`npm start`
 8. To run the application in a production environment, run  
 `npm run build`  
 and host the newly created **build** folder on a static website hosting provider of your choice e.g. Netlify
