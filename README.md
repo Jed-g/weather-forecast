@@ -1,4 +1,5 @@
 # Overview
+### Weather Forecast
 A front-end web application that allows you to check the current, hourly and daily weather forecast. Location lookup by City Name, Country or Geographic Coordinates is possible. After searching for a location and viewing the forecast, the location is automatically saved for quick and easy lookup in the future.
 # Live Demo
 Live demo is available [here](https://weather.jgolebiewski.com).
