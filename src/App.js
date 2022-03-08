@@ -32,8 +32,8 @@ import {
   API_KEY_HERE,
 } from "./api/ENV.json";
 import Tabs from "./components/main_page/Tabs";
-import "react-perfect-scrollbar/dist/css/styles.css";
-import PerfectScrollbar from "react-perfect-scrollbar";
+import SimpleBar from "simplebar-react";
+import "simplebar/dist/simplebar.min.css";
 
 const SearchPage = lazy(() => import("./components/search_page/SearchPage"));
 
@@ -132,7 +132,13 @@ function App() {
         <Router>
           {redirect}
           <SettingsContext.Provider value={[settings, setSettings]}>
-            <PerfectScrollbar options={{ suppressScrollX: true }}>
+            <SimpleBar
+              style={{
+                maxHeight: "100vh",
+                overflowX: "hidden",
+              }}
+              autoHide={false}
+            >
               <div
                 style={{
                   display: "flex",
@@ -201,7 +207,7 @@ function App() {
                   </IconButton>
                 </div>
               </div>
-            </PerfectScrollbar>
+            </SimpleBar>
           </SettingsContext.Provider>
         </Router>
       </ThemeProvider>
