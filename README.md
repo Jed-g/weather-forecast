@@ -1,70 +1,60 @@
-# Getting Started with Create React App
+# Overview
+A front-end web application that allows you to check the current, hourly and daily weather forecast. Location lookup by City Name, Country or Geographic Coordinates is possible. After searching for a location and viewing the forecast, the location is automatically saved for quick and easy lookup in the future.
+# Live Demo
+Live demo is available [here](https://weather.jgolebiewski.com).
+# Getting Started
+To run the project locally or in a production setting:
+1. Make sure you have node.js and npm installed
+2. Clone the repository  
+`git clone https://github.com/Jed-g/weather-forecast.git`
+3. Navigate to the newly created folder in the console and run  
+`npm i`  
+to install the project dependencies
+4. In **node_modules\react-scripts\config\webpack.config.js** add  
+    ```
+        externals: {
+          "mapbox-gl": 'mapboxgl',
+        },
+    ```
+    to the return object starting on **line 171** i.e.
+    ```
+              options: {
+                sourceMap: true,
+              },
+            }
+          );
+        }
+        return loaders;
+      };
+    
+      return {
+        externals: {
+          "mapbox-gl": 'mapboxgl',
+        },
+        mode: isEnvProduction ? 'production' : isEnvDevelopment && 'development',
+        // Stop compilation early in production
+        bail: isEnvProduction,
+        devtool: isEnvProduction
+    ```
+    This is to mark **mapbox-gl** as an external dependency that shouldn't be bundled during the build process and is instead imported as a script from a CDN. There is an unfixed error in the **mapbox-gl** npm package that occurs during the build process which causes the map to not be visible in the final build
+5. Change the API keys in **src\api\ENV.json**. The keys provided are for demo purposes and will stop working once the number of requests exceeds a certain threshold.  
+**Note!** The API keys are bundled into the final deployment package and so are visible to the user. This is intentional and necessary since there is no back-end layer
+7. To run the application in a development environment, run  
+`npm run dev`
+8. To run the application in a production environment, run  
+`npm run build`  
+and host the newly created **build** folder on a static website hosting provider of your choice e.g. Netlify
+# Features
+- Detailed information about current and future weather states
 
-This project was bootstrapped with [Create React App](https://github.com/facebook/create-react-app).
+- Location lookup by City Name, Country or Geographic Coordinates
 
-## Available Scripts
+- Location visualization on a map
 
-In the project directory, you can run:
+- Sunrise & Sunset indicator
 
-### `npm start`
+- Current location autosave for convenience
 
-Runs the app in the development mode.\
-Open [http://localhost:3000](http://localhost:3000) to view it in the browser.
+- Units customization
 
-The page will reload if you make edits.\
-You will also see any lint errors in the console.
-
-### `npm test`
-
-Launches the test runner in the interactive watch mode.\
-See the section about [running tests](https://facebook.github.io/create-react-app/docs/running-tests) for more information.
-
-### `npm run build`
-
-Builds the app for production to the `build` folder.\
-It correctly bundles React in production mode and optimizes the build for the best performance.
-
-The build is minified and the filenames include the hashes.\
-Your app is ready to be deployed!
-
-See the section about [deployment](https://facebook.github.io/create-react-app/docs/deployment) for more information.
-
-### `npm run eject`
-
-**Note: this is a one-way operation. Once you `eject`, you can’t go back!**
-
-If you aren’t satisfied with the build tool and configuration choices, you can `eject` at any time. This command will remove the single build dependency from your project.
-
-Instead, it will copy all the configuration files and the transitive dependencies (webpack, Babel, ESLint, etc) right into your project so you have full control over them. All of the commands except `eject` will still work, but they will point to the copied scripts so you can tweak them. At this point you’re on your own.
-
-You don’t have to ever use `eject`. The curated feature set is suitable for small and middle deployments, and you shouldn’t feel obligated to use this feature. However we understand that this tool wouldn’t be useful if you couldn’t customize it when you are ready for it.
-
-## Learn More
-
-You can learn more in the [Create React App documentation](https://facebook.github.io/create-react-app/docs/getting-started).
-
-To learn React, check out the [React documentation](https://reactjs.org/).
-
-### Code Splitting
-
-This section has moved here: [https://facebook.github.io/create-react-app/docs/code-splitting](https://facebook.github.io/create-react-app/docs/code-splitting)
-
-### Analyzing the Bundle Size
-
-This section has moved here: [https://facebook.github.io/create-react-app/docs/analyzing-the-bundle-size](https://facebook.github.io/create-react-app/docs/analyzing-the-bundle-size)
-
-### Making a Progressive Web App
-
-This section has moved here: [https://facebook.github.io/create-react-app/docs/making-a-progressive-web-app](https://facebook.github.io/create-react-app/docs/making-a-progressive-web-app)
-
-### Advanced Configuration
-
-This section has moved here: [https://facebook.github.io/create-react-app/docs/advanced-configuration](https://facebook.github.io/create-react-app/docs/advanced-configuration)
-
-### Deployment
-
-This section has moved here: [https://facebook.github.io/create-react-app/docs/deployment](https://facebook.github.io/create-react-app/docs/deployment)
-
-### `npm run build` fails to minify
-
-This section has moved here: [https://facebook.github.io/create-react-app/docs/troubleshooting#npm-run-build-fails-to-minify](https://facebook.github.io/create-react-app/docs/troubleshooting#npm-run-build-fails-to-minify)
+- Dark/Light mode
