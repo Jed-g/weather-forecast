@@ -5,6 +5,7 @@ Live demo is available [here](https://weather.jgolebiewski.com).
 # Getting Started
 To run the project locally or in a production setting:
 1. Make sure you have node.js and npm installed
+
 2. Clone the repository  
 `git clone https://github.com/Jed-g/weather-forecast.git`
 3. Navigate to the newly created folder in the console and run  
